@@ -1,0 +1,6 @@
+framework module Pods_Bike_ShareUITests {
+  umbrella header "Pods-Bike ShareUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
