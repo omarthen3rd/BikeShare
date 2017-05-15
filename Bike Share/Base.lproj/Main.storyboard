@@ -18,11 +18,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" rowHeight="90" id="Rvx-CQ-Vs3" customClass="StationCell" customModule="Bike_Share" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="Cell" rowHeight="90" id="Rvx-CQ-Vs3" customClass="StationCell" customModule="Bike_Share" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="375" height="90"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Rvx-CQ-Vs3" id="TNG-V2-pEM">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="90"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="342" height="90"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="stationName" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.20000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="dAB-EB-e9z">
@@ -62,12 +62,12 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <outlet property="lastUpdated" destination="N2m-0R-X8r" id="wdB-O6-dOc"/>
                                     <outlet property="stationCapacity" destination="mCf-cq-3Sj" id="WDU-lh-Vls"/>
                                     <outlet property="stationDistance" destination="32O-JB-zOV" id="uPU-vB-oQ0"/>
                                     <outlet property="stationName" destination="dAB-EB-e9z" id="O3A-UQ-0dg"/>
-                                    <segue destination="lhW-Px-MNY" kind="show" identifier="showDetailMap" id="OWy-Ye-Acu"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -77,16 +77,12 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="BikeShare" id="Zv3-M8-2T0">
-                        <barButtonItem key="rightBarButtonItem" systemItem="bookmarks" id="c0b-pD-id3">
-                            <connections>
-                                <segue destination="5fK-hL-28o" kind="show" identifier="" id="BRz-MR-8Iz"/>
-                            </connections>
-                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="bookmarks" id="c0b-pD-id3"/>
                     </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BL3-2x-YCl" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1223" y="154"/>
+            <point key="canvasLocation" x="2372" y="887.40629685157433"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="b04-Cj-ueT">
@@ -151,7 +147,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PmG-qa-Usa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2290" y="155"/>
+            <point key="canvasLocation" x="1562" y="887"/>
         </scene>
         <!--Detail Table View Controller-->
         <scene sceneID="6fl-MU-zhn">
@@ -322,6 +318,14 @@
                             <outlet property="delegate" destination="lhW-Px-MNY" id="j3J-4f-m1f"/>
                         </connections>
                     </tableView>
+                    <navigationItem key="navigationItem" id="QFY-a0-Z0G">
+                        <barButtonItem key="rightBarButtonItem" title="Done" style="done" id="r9e-3S-1IP">
+                            <connections>
+                                <action selector="doneButton:" destination="lhW-Px-MNY" id="eKJ-Rn-GPg"/>
+                                <segue destination="kcy-uc-wKG" kind="unwind" unwindAction="unwindToMainWithSegue:" id="TFT-kg-UIv"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="availableBikes" destination="pWj-9i-xhn" id="bjM-ek-xmz"/>
                         <outlet property="availableDocks" destination="VYD-af-Y1d" id="DVN-DR-yYm"/>
@@ -337,26 +341,28 @@
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nhE-KX-SK3" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="kcy-uc-wKG" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2289" y="894"/>
+            <point key="canvasLocation" x="4167.1999999999998" y="888.30584707646187"/>
         </scene>
         <!--Navigation Controller-->
-        <scene sceneID="AgM-hG-aGi">
+        <scene sceneID="kX9-yE-sQk">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="guM-wg-1ZT" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="hg0-zA-BmU" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="20D-02-1w2">
+                    <navigationItem key="navigationItem" id="B0a-5A-0I5"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="AoR-iT-kNa">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="ve1-53-ikn" kind="relationship" relationship="rootViewController" id="hff-oO-lyh"/>
+                        <segue destination="lhW-Px-MNY" kind="relationship" relationship="rootViewController" id="gkH-b1-fNj"/>
                     </connections>
                 </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Lds-ec-Olx" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Bri-o1-0wP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="125.59999999999999" y="155.17241379310346"/>
+            <point key="canvasLocation" x="3228" y="888.30584707646187"/>
         </scene>
     </scenes>
     <resources>

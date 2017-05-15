@@ -31,6 +31,12 @@ struct BikeStation {
     
 }
 
+protocol SelectedBikeStationDelegate {
+    
+    func selected(_ bikeStation: BikeStation)
+    
+}
+
 extension MainTableViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
@@ -93,12 +99,44 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     var favouriteBikeStations = [BikeStation]()
     
     var resultSearchController = UISearchController(searchResultsController: nil)
+    var didSelectNewStation = false
     
     var currentLocation = CLLocation()
     let tintColor = UIColor(red:0.06, green:0.81, blue:0.16, alpha:1.0)
+    
+    var delegate: SelectedBikeStationDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        loadEverything()
+        
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        get {
+            return true
+        }
+    }
+    
+    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        
+        get {
+            
+            return .slide
+            
+        }
+        
+    }
+    
+    func loadEverything() {
+        
+        print("loadEverything")
         
         setupTheme()
         
@@ -109,16 +147,12 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             if success {
                 
                 self.makeStations()
+                print(self.bikeStations.count)
                 
             }
             
         }
         
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     func setupTheme() {
@@ -139,7 +173,6 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             let glassIconView = textSearchBar?.leftView as! UIImageView
             glassIconView.tintColor = UIColor.lightGray
             
-            self.tableView.tableHeaderView = controller.searchBar
             return controller
             
         })()
@@ -235,9 +268,6 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
     }
     
-    
-    
-    
     func makeStations() {
         
         self.bikeStations.sort(by: { $0.distance < $1.distance })
@@ -287,6 +317,8 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             self.resultSearchController.searchBar.searchBarStyle = UISearchBarStyle.minimal
         }
         
+        self.resultSearchController.searchBar.resignFirstResponder()
+        
     }
     
     // MARK: - Table view data source
@@ -313,40 +345,11 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         return [favourite]
         
     }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        
-        if self.favouriteBikeStations.count == 0 {
-            
-            return "All"
-            
-        } else {
-            
-            if section == 0 {
-                
-                return "Favourites"
-                
-            } else {
-                
-                return "All"
-                
-            }
-            
-        }
-        
-    }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         
-        if self.favouriteBikeStations.count == 0 {
-            
-            return 1
-            
-        } else {
-            
-            return 2
-            
-        }
+        return 1
+        
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -366,6 +369,25 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        popupItem.title = self.bikeStations[indexPath.row].address
+        popupItem.subtitle = "\(self.bikeStations[indexPath.row].nbBikesAvailable)" + " bikes available and " + "\(self.bikeStations[indexPath.row].nbDocksAvailable)" + " docks available"
+        
+        print("ran didSelect")
+                
+        if let del = delegate {
+            
+            print("ran delegate")
+            
+            del.selected(self.bikeStations[indexPath.row])
+            
+        }
+        
+        popupPresentationContainer?.closePopup(animated: true, completion: { 
+            
+            self.didSelectNewStation = true
+            
+        })
         
     }
 
@@ -394,13 +416,15 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
         
+        print("segue happened")
+        
         if segue.identifier == "showDetailMap" {
             
             if let indexPath = self.tableView.indexPathForSelectedRow {
                 
                 let stationDetail: BikeStation
                 
-                let controller = segue.destination as! DetailTableViewController
+                let controller = (segue.destination as! UINavigationController).topViewController as! DetailTableViewController
                 
                 // for when implementing searchBar
                 if resultSearchController.isActive {

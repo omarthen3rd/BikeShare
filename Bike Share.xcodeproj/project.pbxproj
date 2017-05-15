@@ -18,6 +18,8 @@
 		5679CC771EB952EB00A039FB /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5679CC751EB952EB00A039FB /* Alamofire.framework */; };
 		5679CC781EB952EB00A039FB /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5679CC761EB952EB00A039FB /* SwiftyJSON.framework */; };
 		567F8BDA1EBBFE580076E01C /* LNPopupController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F8BD91EBBFE580076E01C /* LNPopupController.framework */; };
+		567F8BE11EBC13BA0076E01C /* LNPopupController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F8BE01EBC13BA0076E01C /* LNPopupController.framework */; };
+		567F8BE21EBC13BA0076E01C /* LNPopupController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 567F8BE01EBC13BA0076E01C /* LNPopupController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5699C45F1EBA506F00DC2567 /* CalloutView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5699C45E1EBA506F00DC2567 /* CalloutView.xib */; };
 		5699C4611EBA508400DC2567 /* CalloutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5699C4601EBA508400DC2567 /* CalloutView.swift */; };
 		56FBFE741EB9FB6A00E436FA /* MainTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56FBFE731EB9FB6A00E436FA /* MainTableViewController.swift */; };
@@ -44,6 +46,20 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		567F8BE31EBC13BA0076E01C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				567F8BE21EBC13BA0076E01C /* LNPopupController.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		216365729151164CB256406D /* Pods-Bike Share.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bike Share.release.xcconfig"; path = "Pods/Target Support Files/Pods-Bike Share/Pods-Bike Share.release.xcconfig"; sourceTree = "<group>"; };
 		3032D170A6FA2C0DCEFFE02A /* Pods-Bike ShareTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bike ShareTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Bike ShareTests/Pods-Bike ShareTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -65,6 +81,7 @@
 		5679CC751EB952EB00A039FB /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "../../Library/Developer/Xcode/DerivedData/Bike_Share-hgbqwsclucdmpmbmozydveontqjf/Build/Products/Debug-iphonesimulator/Alamofire/Alamofire.framework"; sourceTree = "<group>"; };
 		5679CC761EB952EB00A039FB /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "../../Library/Developer/Xcode/DerivedData/Bike_Share-hgbqwsclucdmpmbmozydveontqjf/Build/Products/Debug-iphonesimulator/SwiftyJSON/SwiftyJSON.framework"; sourceTree = "<group>"; };
 		567F8BD91EBBFE580076E01C /* LNPopupController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LNPopupController.framework; path = "LNPopupController/build/Debug-iphoneos/LNPopupController.framework"; sourceTree = "<group>"; };
+		567F8BE01EBC13BA0076E01C /* LNPopupController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LNPopupController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5699C45E1EBA506F00DC2567 /* CalloutView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CalloutView.xib; sourceTree = "<group>"; };
 		5699C4601EBA508400DC2567 /* CalloutView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalloutView.swift; sourceTree = "<group>"; };
 		56FBFE731EB9FB6A00E436FA /* MainTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTableViewController.swift; sourceTree = "<group>"; };
@@ -83,6 +100,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				567F8BDA1EBBFE580076E01C /* LNPopupController.framework in Frameworks */,
+				567F8BE11EBC13BA0076E01C /* LNPopupController.framework in Frameworks */,
 				5679CC771EB952EB00A039FB /* Alamofire.framework in Frameworks */,
 				5679CC781EB952EB00A039FB /* SwiftyJSON.framework in Frameworks */,
 				05809FCD94535EB51B6463FA /* Pods_Bike_Share.framework in Frameworks */,
@@ -111,6 +129,7 @@
 		5679CC3B1EB9483800A039FB = {
 			isa = PBXGroup;
 			children = (
+				567F8BE01EBC13BA0076E01C /* LNPopupController.framework */,
 				5679CC461EB9483800A039FB /* Bike Share */,
 				5679CC5B1EB9483800A039FB /* Bike ShareTests */,
 				5679CC661EB9483800A039FB /* Bike ShareUITests */,
@@ -205,6 +224,7 @@
 				5679CC421EB9483800A039FB /* Resources */,
 				3B2D194C058241E21F2EC4C1 /* [CP] Embed Pods Frameworks */,
 				82E0527F24714E1BD5B7A592 /* [CP] Copy Pods Resources */,
+				567F8BE31EBC13BA0076E01C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

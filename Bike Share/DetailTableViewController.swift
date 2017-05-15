@@ -41,6 +41,12 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
     @IBOutlet var disabledDocks: UILabel!
     @IBOutlet var disabledBikes: UILabel!
     @IBOutlet var getDirections: UIButton!
+    @IBAction func unwindToMain(segue: UIStoryboardSegue) {}
+    @IBAction func doneButton(_ sender: Any) {
+        
+        // dismiss(animated: true) { }
+        
+    }
     
     let defaults = UserDefaults.standard
     let tintColor = UIColor(red:0.06, green:0.81, blue:0.16, alpha:1.0)

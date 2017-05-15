@@ -26,7 +26,7 @@ class StationAnnotation: NSObject, MKAnnotation {
     }
 }
 
-class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UISearchBarDelegate, LNPopupBarPreviewingDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UISearchBarDelegate, LNPopupBarPreviewingDelegate, SelectedBikeStationDelegate {
     
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
@@ -36,18 +36,16 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     var bikeStations = [BikeStation]()
     var currentLocation = CLLocation()
+    var annotationsInView = [Any]()
+    
+    var popupContentController = MainTableViewController()
     
     let tintColor = UIColor(red:0.06, green:0.81, blue:0.16, alpha:1.0)
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        let targetVC = self
-        
-        let popupContentController = storyboard?.instantiateViewController(withIdentifier: "MainTableViewController") as! MainTableViewController
-        
-        targetVC.popupBar.previewingDelegate = self
-        targetVC.presentPopupBar(withContentViewController: popupContentController, animated: true, completion: nil)
+        print("ran this")
         
     }
     
@@ -57,11 +55,21 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.navigationController?.navigationBar.tintColor = tintColor
         
+        let statusBarView = UIView(frame: CGRect(x:0, y:0, width:view.frame.size.width, height: UIApplication.shared.statusBarFrame.height))
+        let blurEffect = UIBlurEffect(style: .extraLight) // Set any style you want(.light or .dark) to achieve different effect.
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = statusBarView.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        statusBarView.addSubview(blurEffectView)
+        view.addSubview(statusBarView)
+        
         self.activityIndicator.startAnimating()
         self.activityIndicator.isHidden = false
         self.actvityVisualView.isHidden = false
         
         currentLocation = CLLocation(latitude: 43.6628917, longitude: -79.39565640000001)
+        
+        let mapRect = mapView
         
         mapView.delegate = self
         mapView.showsUserLocation = true
@@ -69,6 +77,31 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         loadStations { (success) in
             self.makeStations()
+            
+            let targetVC = self
+            
+            self.popupContentController = self.storyboard?.instantiateViewController(withIdentifier: "MainTableViewController") as! MainTableViewController
+            
+            self.popupContentController.bikeStations = self.bikeStations
+            self.popupContentController.tableView.backgroundColor = UIColor.clear
+            self.popupContentController.tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+            self.popupContentController.delegate = self
+            self.popupContentController.popupItem.title = "\(self.bikeStations.count) bike stations in total"
+            
+            if self.popupContentController.bikeStations.count == 0 {
+                self.popupContentController.loadEverything()
+            }
+            
+            targetVC.popupBar.previewingDelegate = self
+            targetVC.popupBar.backgroundStyle = UIBlurEffectStyle.extraLight
+            targetVC.popupInteractionStyle = .drag
+            targetVC.popupContentView.popupCloseButtonStyle = .none
+            targetVC.presentPopupBar(withContentViewController: self.popupContentController, animated: true, completion: nil)
+            
+            let annotations = self.mapView.annotations(in: self.mapView.visibleMapRect)
+            self.annotationsInView = Array(annotations)
+            self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+            
         }
         
     }
@@ -202,6 +235,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         calloutView.center = CGPoint(x: view.bounds.size.width / 2, y: -calloutView.bounds.size.height * 0.52)
         calloutView.alpha = 0.0
         
+        popupContentController.popupItem.title = stationAnnotation.stationToUse.address
+        popupContentController.popupItem.subtitle = "\(stationAnnotation.stationToUse.nbBikesAvailable) bikes available"
+        
         UIView.animate(withDuration: 0.3) {
             
             calloutView.alpha = 1.0
@@ -214,6 +250,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        
+        self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
         
         if view.isKind(of: AnnotationView.self) {
             
@@ -263,6 +301,57 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         let vc = UIViewController()
         
         return vc
+        
+    }
+    
+    func selected(_ bikeStation: BikeStation) {
+        
+        for ann in self.mapView.annotations {
+            
+            if let annBikeStation = ann as? StationAnnotation {
+                
+                if annBikeStation.stationToUse.id == bikeStation.id {
+                    
+                    self.mapView.selectAnnotation(ann, animated: true)
+                    
+                }
+                
+            }
+            
+        }
+        
+        
+    }
+    
+    private var mapChangedFromUserInteraction = false
+    
+    private func mapViewRegionDidChangeFromUserInteraction() -> Bool {
+        let view = self.mapView.subviews[0]
+        if let gestureRecognizers = view.gestureRecognizers {
+            for recognizer in gestureRecognizers {
+                if (recognizer.state == UIGestureRecognizerState.began || recognizer.state == UIGestureRecognizerState.ended) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+        mapChangedFromUserInteraction = mapViewRegionDidChangeFromUserInteraction()
+    }
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        
+        if mapView.selectedAnnotations.count == 0 {
+            
+            if (mapChangedFromUserInteraction) {
+                let annotations = self.mapView.annotations(in: self.mapView.visibleMapRect)
+                self.annotationsInView = Array(annotations)
+                self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+            }
+            
+        }
         
     }
     
