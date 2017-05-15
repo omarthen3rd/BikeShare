@@ -136,8 +136,6 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     
     func loadEverything() {
         
-        print("loadEverything")
-        
         setupTheme()
         
         currentLocation = CLLocation(latitude: 43.6628917, longitude: -79.39565640000001)
@@ -172,6 +170,8 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             placeholderTextSearchBar?.textColor = UIColor.lightGray
             let glassIconView = textSearchBar?.leftView as! UIImageView
             glassIconView.tintColor = UIColor.lightGray
+            
+            self.tableView.tableHeaderView = controller.searchBar
             
             return controller
             
@@ -292,6 +292,13 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         if self.resultSearchController.isActive {
+            self.resultSearchController.isActive = false
+            self.resultSearchController.resignFirstResponder()
+        }
+        
+        /*
+        
+        if self.resultSearchController.isActive {
             self.resultSearchController.searchBar.searchBarStyle = UISearchBarStyle.default
             self.resultSearchController.searchBar.barTintColor = UIColor.white
             self.resultSearchController.searchBar.layer.borderColor = UIColor.clear.cgColor
@@ -319,6 +326,8 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         self.resultSearchController.searchBar.resignFirstResponder()
         
+        */
+ 
     }
     
     // MARK: - Table view data source
@@ -373,11 +382,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         popupItem.title = self.bikeStations[indexPath.row].address
         popupItem.subtitle = "\(self.bikeStations[indexPath.row].nbBikesAvailable)" + " bikes available and " + "\(self.bikeStations[indexPath.row].nbDocksAvailable)" + " docks available"
         
-        print("ran didSelect")
-                
         if let del = delegate {
-            
-            print("ran delegate")
             
             del.selected(self.bikeStations[indexPath.row])
             
@@ -388,6 +393,11 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             self.didSelectNewStation = true
             
         })
+        
+        if self.resultSearchController.isActive {
+            self.resultSearchController.isActive = false
+            self.resultSearchController.resignFirstResponder()
+        }
         
     }
 
@@ -415,8 +425,6 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
-        
-        print("segue happened")
         
         if segue.identifier == "showDetailMap" {
             

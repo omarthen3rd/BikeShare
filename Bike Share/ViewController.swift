@@ -69,8 +69,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         currentLocation = CLLocation(latitude: 43.6628917, longitude: -79.39565640000001)
         
-        let mapRect = mapView
-        
         mapView.delegate = self
         mapView.showsUserLocation = true
         self.centerMapOn(self.currentLocation)
@@ -89,7 +87,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             self.popupContentController.popupItem.title = "\(self.bikeStations.count) bike stations in total"
             
             if self.popupContentController.bikeStations.count == 0 {
-                self.popupContentController.loadEverything()
+                // self.popupContentController.loadEverything()
             }
             
             targetVC.popupBar.previewingDelegate = self
@@ -236,7 +234,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         calloutView.alpha = 0.0
         
         popupContentController.popupItem.title = stationAnnotation.stationToUse.address
-        popupContentController.popupItem.subtitle = "\(stationAnnotation.stationToUse.nbBikesAvailable) bikes available"
+        popupContentController.popupItem.subtitle = "\(stationAnnotation.stationToUse.nbBikesAvailable) bikes available and " + "\(stationAnnotation.stationToUse.nbDocksAvailable) docks available"
         
         UIView.animate(withDuration: 0.3) {
             
@@ -252,6 +250,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         
         self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+        self.popupContentController.popupItem.subtitle = ""
+        
         
         if view.isKind(of: AnnotationView.self) {
             
@@ -346,9 +346,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         if mapView.selectedAnnotations.count == 0 {
             
             if (mapChangedFromUserInteraction) {
+                
                 let annotations = self.mapView.annotations(in: self.mapView.visibleMapRect)
                 self.annotationsInView = Array(annotations)
                 self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+                
             }
             
         }
