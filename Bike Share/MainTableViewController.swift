@@ -340,11 +340,9 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
             
+            // TODO:
             // Use UserDefaults for storing array
-            
-            // let stationToFavourite = self.bikeStations[indexPath.row]
-            // self.favouriteBikeStations.append(stationToFavourite)
-            // self.tableView.reloadData()
+            // Use code from EatWhat for multiple sections
             
         }
         

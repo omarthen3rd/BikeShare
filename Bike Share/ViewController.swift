@@ -31,12 +31,15 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var actvityVisualView: UIVisualEffectView!
+    @IBAction func unwindToMenu(segue: UIStoryboardSegue) {}
     
     private var popUpContentVC: MainTableViewController!
     
     var bikeStations = [BikeStation]()
     var currentLocation = CLLocation()
     var annotationsInView = [Any]()
+    
+    let defaults = UserDefaults.standard
     
     var popupContentController = MainTableViewController()
     
@@ -45,13 +48,19 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        print("ran this")
-        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        if defaults.object(forKey: "defaultMapsApp") as? String == nil {
+            
+            print("first time")
+            
+            defaults.set("Apple Maps", forKey: "defaultMapsApp")
+            
+        }
         
         self.navigationController?.navigationBar.tintColor = tintColor
         
@@ -221,7 +230,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
         if view.annotation is MKUserLocation {
-            
+            // Don't proceed with custom callout
             return
             
         }
@@ -230,7 +239,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         let views = Bundle.main.loadNibNamed("CalloutView", owner: nil, options: nil)
         let calloutView = views?[0] as! CalloutView
         calloutView.station = stationAnnotation.stationToUse
+        
+        let button = UIButton(frame: calloutView.bounds)
+        button.addTarget(self, action: #selector(self.goToDetailView), for: .touchUpInside)
+        
         calloutView.center = CGPoint(x: view.bounds.size.width / 2, y: -calloutView.bounds.size.height * 0.52)
+        calloutView.addSubview(button)
+        
         calloutView.alpha = 0.0
         
         popupContentController.popupItem.title = stationAnnotation.stationToUse.address
@@ -251,7 +266,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
         self.popupContentController.popupItem.subtitle = ""
-        
         
         if view.isKind(of: AnnotationView.self) {
             
@@ -350,6 +364,44 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 let annotations = self.mapView.annotations(in: self.mapView.visibleMapRect)
                 self.annotationsInView = Array(annotations)
                 self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+                
+            }
+            
+        }
+        
+    }
+    
+    
+    func goToDetailView() {
+        
+        if let ann = self.mapView.selectedAnnotations[0] as? StationAnnotation {
+            
+            if let vc = self.storyboard?.instantiateViewController(withIdentifier: "DetailTableViewController") as? DetailTableViewController {
+                vc.station = ann.stationToUse
+                
+                vc.tableView.backgroundColor = UIColor.clear
+                vc.tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.light))
+                
+                let gps = UINavigationController(rootViewController: vc)
+                gps.modalPresentationStyle = .overFullScreen
+                self.present(gps, animated: true, completion: nil)
+                
+            }
+            
+        }
+        
+        // performSegue(withIdentifier: "showDetailFromMap", sender: self)
+        
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "showDetailFromMap" {
+            
+            if let ann = self.mapView.selectedAnnotations[0] as? StationAnnotation {
+                
+                let destVC = (segue.destination as! UINavigationController).topViewController as? DetailTableViewController
+                destVC?.station = ann.stationToUse
                 
             }
             

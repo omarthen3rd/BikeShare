@@ -77,6 +77,11 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
         self.getDirections.setBackgroundColor(color: UIColor(red:0.07, green:0.61, blue:0.93, alpha:1.0), forState: .normal)
         self.getDirections.setBackgroundColor(color: UIColor(red:0.06, green:0.41, blue:0.75, alpha:1.0), forState: .selected)
         
+        let object = defaults.object(forKey: "defaultMapsApp") as! String
+        print(object)
+        
+        self.getDirections.setImage(UIImage(named: object)?.withRenderingMode(.alwaysOriginal), for: .normal)
+        
         self.centerMapOn(station.location)
         self.tableView.tableFooterView = UIView()
         
@@ -159,6 +164,7 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
         let defaultMapsApp = UIAlertAction(title: "Apple Maps", style: .default) { (action) in
             
             self.defaults.set("Apple Maps", forKey: "defaultMapsApp")
+            self.getDirections.setImage(UIImage(named: self.defaults.object(forKey: "defaultMapsApp") as! String)?.withRenderingMode(.alwaysOriginal), for: .normal)
             
         }
         defaultMapsApp.setValue(UIImage(named: "Apple Maps")?.withRenderingMode(.alwaysOriginal), forKey: "image")
@@ -166,6 +172,7 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
         let googleMaps = UIAlertAction(title: "Google Maps", style: .default) { (action) in
             
             self.defaults.set("Google Maps", forKey: "defaultMapsApp")
+            self.getDirections.setImage(UIImage(named: self.defaults.object(forKey: "defaultMapsApp") as! String)?.withRenderingMode(.alwaysOriginal), for: .normal)
             
         }
         googleMaps.setValue(UIImage(named: "Google Maps")?.withRenderingMode(.alwaysOriginal), forKey: "image")
@@ -173,31 +180,24 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
         let waze = UIAlertAction(title: "Waze", style: .default) { (action) in
             
             self.defaults.set("Waze", forKey: "defaultMapsApp")
+            self.getDirections.setImage(UIImage(named: self.defaults.object(forKey: "defaultMapsApp") as! String)?.withRenderingMode(.alwaysOriginal), for: .normal)
             
         }
         waze.setValue(UIImage(named: "Waze")?.withRenderingMode(.alwaysOriginal), forKey: "image")
         
-        if defaults.object(forKey: "defaultMapsApp") == nil {
-            
-            defaults.set("Apple Maps", forKey: "defaultMapsApp")
-            self.getDirections.setImage(UIImage(named: "Apple Maps")?.withRenderingMode(.alwaysOriginal), for: .normal)
-            
-        } else if let appName = defaults.object(forKey: "defaultMapsApp") as? String {
+        if let appName = defaults.object(forKey: "defaultMapsApp") as? String {
             
             if appName == "Apple Maps" {
                 
                 defaultMapsApp.setValue(true, forKey: "checked")
-                self.getDirections.setImage(UIImage(named: "Apple Maps")?.withRenderingMode(.alwaysOriginal), for: .normal)
                 
             } else if appName == "Google Maps" {
                 
                 googleMaps.setValue(true, forKey: "checked")
-                self.getDirections.setImage(UIImage(named: "Google Maps")?.withRenderingMode(.alwaysOriginal), for: .normal)
                 
             } else {
                 
                 waze.setValue(true, forKey: "checked")
-                self.getDirections.setImage(UIImage(named: "Waze")?.withRenderingMode(.alwaysOriginal), for: .normal)
                 
             }
             
