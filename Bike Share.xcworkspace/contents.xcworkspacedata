@@ -5,9 +5,6 @@
       location = "group:Bike Share.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:LNPopupController/LNPopupController.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>

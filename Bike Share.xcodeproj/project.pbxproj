@@ -8,25 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		05809FCD94535EB51B6463FA /* Pods_Bike_Share.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 458EEA276A9B81B64B5DCD1A /* Pods_Bike_Share.framework */; };
+		5600ED831ED740E90003DC90 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5600ED821ED740E90003DC90 /* Alamofire.framework */; };
+		5600ED851ED740F00003DC90 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5600ED841ED740F00003DC90 /* SwiftyJSON.framework */; };
+		5600ED8A1ED741150003DC90 /* PopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5600ED891ED741150003DC90 /* PopViewController.swift */; };
+		5627B7671ED8A7F4005C4DA6 /* LNPopupController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5627B7661ED8A7F4005C4DA6 /* LNPopupController.framework */; };
+		5627B7681ED8A7FC005C4DA6 /* LNPopupController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5627B7661ED8A7F4005C4DA6 /* LNPopupController.framework */; };
+		5627B7691ED8A7FC005C4DA6 /* LNPopupController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5627B7661ED8A7F4005C4DA6 /* LNPopupController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5679CC481EB9483800A039FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5679CC471EB9483800A039FB /* AppDelegate.swift */; };
-		5679CC4A1EB9483800A039FB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5679CC491EB9483800A039FB /* ViewController.swift */; };
+		5679CC4A1EB9483800A039FB /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5679CC491EB9483800A039FB /* MapViewController.swift */; };
 		5679CC4D1EB9483800A039FB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5679CC4B1EB9483800A039FB /* Main.storyboard */; };
 		5679CC4F1EB9483800A039FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5679CC4E1EB9483800A039FB /* Assets.xcassets */; };
 		5679CC521EB9483800A039FB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5679CC501EB9483800A039FB /* LaunchScreen.storyboard */; };
 		5679CC5D1EB9483800A039FB /* Bike_ShareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5679CC5C1EB9483800A039FB /* Bike_ShareTests.swift */; };
 		5679CC681EB9483800A039FB /* Bike_ShareUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5679CC671EB9483800A039FB /* Bike_ShareUITests.swift */; };
-		5679CC771EB952EB00A039FB /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5679CC751EB952EB00A039FB /* Alamofire.framework */; };
-		5679CC781EB952EB00A039FB /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5679CC761EB952EB00A039FB /* SwiftyJSON.framework */; };
-		567F8BDA1EBBFE580076E01C /* LNPopupController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F8BD91EBBFE580076E01C /* LNPopupController.framework */; };
-		567F8BE11EBC13BA0076E01C /* LNPopupController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F8BE01EBC13BA0076E01C /* LNPopupController.framework */; };
-		567F8BE21EBC13BA0076E01C /* LNPopupController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 567F8BE01EBC13BA0076E01C /* LNPopupController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5699C45F1EBA506F00DC2567 /* CalloutView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5699C45E1EBA506F00DC2567 /* CalloutView.xib */; };
 		5699C4611EBA508400DC2567 /* CalloutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5699C4601EBA508400DC2567 /* CalloutView.swift */; };
 		56FBFE741EB9FB6A00E436FA /* MainTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56FBFE731EB9FB6A00E436FA /* MainTableViewController.swift */; };
 		56FC5C3D1EBA750E0078E264 /* AnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56FC5C3C1EBA750E0078E264 /* AnnotationView.swift */; };
 		56FC5C3F1EBA853B0078E264 /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56FC5C3E1EBA853B0078E264 /* DetailTableViewController.swift */; };
-		5BB1C36F88A428DF9646794C /* Pods_Bike_ShareUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81FF42E85DC9A17998524CB8 /* Pods_Bike_ShareUITests.framework */; };
-		E64BB85F3C4E8F80279D25EC /* Pods_Bike_ShareTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE0B1D9C59D5C22298F2FEDA /* Pods_Bike_ShareTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,13 +46,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		567F8BE31EBC13BA0076E01C /* Embed Frameworks */ = {
+		5600ED9A1ED7425D0003DC90 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				567F8BE21EBC13BA0076E01C /* LNPopupController.framework in Embed Frameworks */,
+				5627B7691ED8A7FC005C4DA6 /* LNPopupController.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,9 +64,13 @@
 		3032D170A6FA2C0DCEFFE02A /* Pods-Bike ShareTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bike ShareTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Bike ShareTests/Pods-Bike ShareTests.release.xcconfig"; sourceTree = "<group>"; };
 		3687FA5D1A9421F5E12B845B /* Pods-Bike Share.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bike Share.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Bike Share/Pods-Bike Share.debug.xcconfig"; sourceTree = "<group>"; };
 		458EEA276A9B81B64B5DCD1A /* Pods_Bike_Share.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Bike_Share.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5600ED821ED740E90003DC90 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "../../../../Developer/Xcode/DerivedData/Bike_Share-blfddqeirjnzwcczyypnnsmphboc/Build/Products/Debug-iphoneos/Alamofire/Alamofire.framework"; sourceTree = "<group>"; };
+		5600ED841ED740F00003DC90 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "../../../../Developer/Xcode/DerivedData/Bike_Share-blfddqeirjnzwcczyypnnsmphboc/Build/Products/Debug-iphoneos/SwiftyJSON/SwiftyJSON.framework"; sourceTree = "<group>"; };
+		5600ED891ED741150003DC90 /* PopViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopViewController.swift; sourceTree = "<group>"; };
+		5627B7661ED8A7F4005C4DA6 /* LNPopupController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LNPopupController.framework; path = Carthage/Build/iOS/LNPopupController.framework; sourceTree = "<group>"; };
 		5679CC441EB9483800A039FB /* Bike Share.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bike Share.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5679CC471EB9483800A039FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		5679CC491EB9483800A039FB /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		5679CC491EB9483800A039FB /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		5679CC4C1EB9483800A039FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		5679CC4E1EB9483800A039FB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5679CC511EB9483800A039FB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -78,10 +81,6 @@
 		5679CC631EB9483800A039FB /* Bike ShareUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bike ShareUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5679CC671EB9483800A039FB /* Bike_ShareUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bike_ShareUITests.swift; sourceTree = "<group>"; };
 		5679CC691EB9483800A039FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5679CC751EB952EB00A039FB /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "../../Library/Developer/Xcode/DerivedData/Bike_Share-hgbqwsclucdmpmbmozydveontqjf/Build/Products/Debug-iphonesimulator/Alamofire/Alamofire.framework"; sourceTree = "<group>"; };
-		5679CC761EB952EB00A039FB /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "../../Library/Developer/Xcode/DerivedData/Bike_Share-hgbqwsclucdmpmbmozydveontqjf/Build/Products/Debug-iphonesimulator/SwiftyJSON/SwiftyJSON.framework"; sourceTree = "<group>"; };
-		567F8BD91EBBFE580076E01C /* LNPopupController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LNPopupController.framework; path = "LNPopupController/build/Debug-iphoneos/LNPopupController.framework"; sourceTree = "<group>"; };
-		567F8BE01EBC13BA0076E01C /* LNPopupController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LNPopupController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5699C45E1EBA506F00DC2567 /* CalloutView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CalloutView.xib; sourceTree = "<group>"; };
 		5699C4601EBA508400DC2567 /* CalloutView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalloutView.swift; sourceTree = "<group>"; };
 		56FBFE731EB9FB6A00E436FA /* MainTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTableViewController.swift; sourceTree = "<group>"; };
@@ -89,8 +88,6 @@
 		56FC5C3E1EBA853B0078E264 /* DetailTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
 		7479473FBBEDAD21CD1EF82E /* Pods-Bike ShareTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bike ShareTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Bike ShareTests/Pods-Bike ShareTests.debug.xcconfig"; sourceTree = "<group>"; };
 		7986B94A32C9FAECACC25637 /* Pods-Bike ShareUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bike ShareUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Bike ShareUITests/Pods-Bike ShareUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		81FF42E85DC9A17998524CB8 /* Pods_Bike_ShareUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Bike_ShareUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BE0B1D9C59D5C22298F2FEDA /* Pods_Bike_ShareTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Bike_ShareTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDEF551C984204C11B36DBEC /* Pods-Bike ShareUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bike ShareUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Bike ShareUITests/Pods-Bike ShareUITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -99,10 +96,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				567F8BDA1EBBFE580076E01C /* LNPopupController.framework in Frameworks */,
-				567F8BE11EBC13BA0076E01C /* LNPopupController.framework in Frameworks */,
-				5679CC771EB952EB00A039FB /* Alamofire.framework in Frameworks */,
-				5679CC781EB952EB00A039FB /* SwiftyJSON.framework in Frameworks */,
+				5600ED851ED740F00003DC90 /* SwiftyJSON.framework in Frameworks */,
+				5627B7681ED8A7FC005C4DA6 /* LNPopupController.framework in Frameworks */,
+				5627B7671ED8A7F4005C4DA6 /* LNPopupController.framework in Frameworks */,
+				5600ED831ED740E90003DC90 /* Alamofire.framework in Frameworks */,
 				05809FCD94535EB51B6463FA /* Pods_Bike_Share.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,7 +108,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E64BB85F3C4E8F80279D25EC /* Pods_Bike_ShareTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,17 +115,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5BB1C36F88A428DF9646794C /* Pods_Bike_ShareUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		566FB5E41EDE23D000AA0763 /* Annotation */ = {
+			isa = PBXGroup;
+			children = (
+				56FC5C3C1EBA750E0078E264 /* AnnotationView.swift */,
+				5699C45E1EBA506F00DC2567 /* CalloutView.xib */,
+				5699C4601EBA508400DC2567 /* CalloutView.swift */,
+			);
+			name = Annotation;
+			sourceTree = "<group>";
+		};
 		5679CC3B1EB9483800A039FB = {
 			isa = PBXGroup;
 			children = (
-				567F8BE01EBC13BA0076E01C /* LNPopupController.framework */,
 				5679CC461EB9483800A039FB /* Bike Share */,
 				5679CC5B1EB9483800A039FB /* Bike ShareTests */,
 				5679CC661EB9483800A039FB /* Bike ShareUITests */,
@@ -155,11 +159,10 @@
 				5679CC471EB9483800A039FB /* AppDelegate.swift */,
 				56FBFE731EB9FB6A00E436FA /* MainTableViewController.swift */,
 				56FC5C3E1EBA853B0078E264 /* DetailTableViewController.swift */,
-				5679CC491EB9483800A039FB /* ViewController.swift */,
-				56FC5C3C1EBA750E0078E264 /* AnnotationView.swift */,
+				5679CC491EB9483800A039FB /* MapViewController.swift */,
+				5600ED891ED741150003DC90 /* PopViewController.swift */,
+				566FB5E41EDE23D000AA0763 /* Annotation */,
 				5679CC4B1EB9483800A039FB /* Main.storyboard */,
-				5699C45E1EBA506F00DC2567 /* CalloutView.xib */,
-				5699C4601EBA508400DC2567 /* CalloutView.swift */,
 				5679CC4E1EB9483800A039FB /* Assets.xcassets */,
 				5679CC501EB9483800A039FB /* LaunchScreen.storyboard */,
 				5679CC531EB9483800A039FB /* Info.plist */,
@@ -201,12 +204,10 @@
 		BEA1CEFDB2516078189C9A0A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				567F8BD91EBBFE580076E01C /* LNPopupController.framework */,
-				5679CC751EB952EB00A039FB /* Alamofire.framework */,
-				5679CC761EB952EB00A039FB /* SwiftyJSON.framework */,
+				5627B7661ED8A7F4005C4DA6 /* LNPopupController.framework */,
+				5600ED841ED740F00003DC90 /* SwiftyJSON.framework */,
+				5600ED821ED740E90003DC90 /* Alamofire.framework */,
 				458EEA276A9B81B64B5DCD1A /* Pods_Bike_Share.framework */,
-				BE0B1D9C59D5C22298F2FEDA /* Pods_Bike_ShareTests.framework */,
-				81FF42E85DC9A17998524CB8 /* Pods_Bike_ShareUITests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -224,7 +225,7 @@
 				5679CC421EB9483800A039FB /* Resources */,
 				3B2D194C058241E21F2EC4C1 /* [CP] Embed Pods Frameworks */,
 				82E0527F24714E1BD5B7A592 /* [CP] Copy Pods Resources */,
-				567F8BE31EBC13BA0076E01C /* Embed Frameworks */,
+				5600ED9A1ED7425D0003DC90 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -498,7 +499,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				56FC5C3F1EBA853B0078E264 /* DetailTableViewController.swift in Sources */,
-				5679CC4A1EB9483800A039FB /* ViewController.swift in Sources */,
+				5679CC4A1EB9483800A039FB /* MapViewController.swift in Sources */,
+				5600ED8A1ED741150003DC90 /* PopViewController.swift in Sources */,
 				56FBFE741EB9FB6A00E436FA /* MainTableViewController.swift in Sources */,
 				56FC5C3D1EBA750E0078E264 /* AnnotationView.swift in Sources */,
 				5679CC481EB9483800A039FB /* AppDelegate.swift in Sources */,
@@ -659,6 +661,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/LNPopupController/build/Debug-iphoneos",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = "Bike Share/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -678,6 +681,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/LNPopupController/build/Debug-iphoneos",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = "Bike Share/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
