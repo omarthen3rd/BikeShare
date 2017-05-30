@@ -420,54 +420,18 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         
-        let favourite = UITableViewRowAction(style: .normal, title: "Favourite") { (action, index) in
+        if tableView.numberOfSections > 1 {
             
-            if self.favouriteBikeStations.contains(where: { $0.id == self.bikeStations[index.row].id }) {
+            if indexPath.section == 0 {
                 
-                // already has it in here
-                
-                self.tableView.reloadData()
-                
-            } else {
-                
-                self.favouriteBikeStations.append(self.bikeStations[index.row])
-                
-                if self.defaults.object(forKey: "favourites") == nil {
+                let delete = UITableViewRowAction(style: .destructive, title: "Delete", handler: { (action, index) in
                     
-                    // no favs, encode arr and replace
-                    
-                    let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self.favouriteBikeStations)
-                    self.defaults.set(encodedData, forKey: "favourites")
-                    self.defaults.synchronize()
-                    
-                    self.tableView.reloadData()
-                    
-                } else {
-                    
-                    // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
-                    
+                    self.favouriteBikeStations.remove(at: index.row)
                     if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
                         
                         if var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
                             
-                            if !(decodedStations.contains(where: { $0.id == self.bikeStations[index.row].id })) {
-                                
-                                decodedStations.append(self.bikeStations[index.row])
-                                
-                                let alert = UIAlertController(title: "Added To Favourites", message: "Successfully added in your favourites!", preferredStyle: .alert)
-                                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                                self.present(alert, animated: true, completion: nil)
-                                
-                            } else {
-                                
-                                let alert = UIAlertController(title: "Already In Favourites", message: "The Bike Station you are trying to add is already in your favourites.", preferredStyle: .alert)
-                                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                                self.present(alert, animated: true, completion: nil)
-                                
-                            }
-                            
-                            print(decodedStations)
-                            print(self.favouriteBikeStations)
+                            decodedStations.remove(at: index.row)
                             
                             self.tableView.reloadData()
                             
@@ -479,19 +443,168 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                         
                     }
                     
+                    self.tableView.reloadData()
+                    
+                })
+                
+                delete.backgroundColor = UIColor.red
+                
+                return [delete]
+                
+                
+            } else {
+                
+                let favourite = UITableViewRowAction(style: .normal, title: "Favourite") { (action, index) in
+                    
+                    if self.favouriteBikeStations.contains(where: { $0.id == self.bikeStations[index.row].id }) {
+                        
+                        // already has it in here
+                        
+                        self.tableView.reloadData()
+                        
+                    } else {
+                        
+                        self.favouriteBikeStations.append(self.bikeStations[index.row])
+                        
+                        if self.defaults.object(forKey: "favourites") == nil {
+                            
+                            // no favs, encode arr and replace
+                            
+                            let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self.favouriteBikeStations)
+                            self.defaults.set(encodedData, forKey: "favourites")
+                            self.defaults.synchronize()
+                            
+                            self.tableView.reloadData()
+                            
+                        } else {
+                            
+                            // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
+                            
+                            if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
+                                
+                                if var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
+                                    
+                                    if !(decodedStations.contains(where: { $0.id == self.bikeStations[index.row].id })) {
+                                        
+                                        decodedStations.append(self.bikeStations[index.row])
+                                        
+                                        let alert = UIAlertController(title: "Added To Favourites", message: "Successfully added in your favourites!", preferredStyle: .alert)
+                                        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                                        self.present(alert, animated: true, completion: nil)
+                                        
+                                    } else {
+                                        
+                                        let alert = UIAlertController(title: "Already In Favourites", message: "The Bike Station you are trying to add is already in your favourites.", preferredStyle: .alert)
+                                        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                                        self.present(alert, animated: true, completion: nil)
+                                        
+                                    }
+                                    
+                                    print(decodedStations)
+                                    print(self.favouriteBikeStations)
+                                    
+                                    self.tableView.reloadData()
+                                    
+                                    let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
+                                    self.defaults.set(encode, forKey: "favourites")
+                                    self.defaults.synchronize()
+                                    
+                                }
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                    // TODO:
+                    // Use code from EatWhat for multiple sections
+                    
                 }
+                
+                favourite.backgroundColor = UIColor.blue
+                
+                
+                return [favourite]
                 
             }
             
-            // TODO:
-            // Use code from EatWhat for multiple sections
+        } else {
+            
+            let favourite = UITableViewRowAction(style: .normal, title: "Favourite") { (action, index) in
+                
+                if self.favouriteBikeStations.contains(where: { $0.id == self.bikeStations[index.row].id }) {
+                    
+                    // already has it in here
+                    
+                    self.tableView.reloadData()
+                    
+                } else {
+                    
+                    self.favouriteBikeStations.append(self.bikeStations[index.row])
+                    
+                    if self.defaults.object(forKey: "favourites") == nil {
+                        
+                        // no favs, encode arr and replace
+                        
+                        let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self.favouriteBikeStations)
+                        self.defaults.set(encodedData, forKey: "favourites")
+                        self.defaults.synchronize()
+                        
+                        self.tableView.reloadData()
+                        
+                    } else {
+                        
+                        // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
+                        
+                        if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
+                            
+                            if var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
+                                
+                                if !(decodedStations.contains(where: { $0.id == self.bikeStations[index.row].id })) {
+                                    
+                                    decodedStations.append(self.bikeStations[index.row])
+                                    
+                                    let alert = UIAlertController(title: "Added To Favourites", message: "Successfully added in your favourites!", preferredStyle: .alert)
+                                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                                    self.present(alert, animated: true, completion: nil)
+                                    
+                                } else {
+                                    
+                                    let alert = UIAlertController(title: "Already In Favourites", message: "The Bike Station you are trying to add is already in your favourites.", preferredStyle: .alert)
+                                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                                    self.present(alert, animated: true, completion: nil)
+                                    
+                                }
+                                
+                                print(decodedStations)
+                                print(self.favouriteBikeStations)
+                                
+                                self.tableView.reloadData()
+                                
+                                let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
+                                self.defaults.set(encode, forKey: "favourites")
+                                self.defaults.synchronize()
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+                // TODO:
+                // Use code from EatWhat for multiple sections
+                
+            }
+            
+            favourite.backgroundColor = UIColor.blue
+            
+            
+            return [favourite]
             
         }
-        
-        favourite.backgroundColor = UIColor.blue
-        
-        
-        return [favourite]
         
     }
     
