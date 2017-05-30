@@ -41,6 +41,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     let defaults = UserDefaults.standard
     
+    var customPopUpBar = PopViewController()
     var popupContentController = MainTableViewController()
     
     let tintColor = UIColor(red:0.06, green:0.81, blue:0.16, alpha:1.0)
@@ -55,8 +56,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         // Do any additional setup after loading the view, typically from a nib.
         
         if defaults.object(forKey: "defaultMapsApp") as? String == nil {
-            
-            print("first time")
             
             defaults.set("Apple Maps", forKey: "defaultMapsApp")
             
@@ -87,13 +86,18 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             
             let targetVC = self
             
-            self.popupContentController = self.storyboard?.instantiateViewController(withIdentifier: "MainTableViewController") as! MainTableViewController
+            self.customPopUpBar = self.storyboard?.instantiateViewController(withIdentifier: "PopViewController") as! PopViewController
+            self.customPopUpBar.view.backgroundColor = UIColor.clear
             
+            self.popupBar.customBarViewController = self.customPopUpBar
+            
+            self.popupContentController = self.storyboard?.instantiateViewController(withIdentifier: "MainTableViewController") as! MainTableViewController
+            self.popupContentController.loadEverything()
             self.popupContentController.bikeStations = self.bikeStations
             self.popupContentController.tableView.backgroundColor = UIColor.clear
             self.popupContentController.tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
             self.popupContentController.delegate = self
-            self.popupContentController.popupItem.title = "\(self.bikeStations.count) bike stations in total"
+            self.popupContentController.popupItem.title = "\(self.bikeStations.count)"
             
             if self.popupContentController.bikeStations.count == 0 {
                 // self.popupContentController.loadEverything()
@@ -107,7 +111,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             
             let annotations = self.mapView.annotations(in: self.mapView.visibleMapRect)
             self.annotationsInView = Array(annotations)
-            self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+            self.popupContentController.popupItem.title = "\(self.annotationsInView.count)"
             
         }
         
@@ -248,8 +252,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         calloutView.alpha = 0.0
         
-        popupContentController.popupItem.title = stationAnnotation.stationToUse.address
-        popupContentController.popupItem.subtitle = "\(stationAnnotation.stationToUse.nbBikesAvailable) bikes available and " + "\(stationAnnotation.stationToUse.nbDocksAvailable) docks available"
+        // popupContentController.popupItem.title = stationAnnotation.stationToUse.address
+        // popupContentController.popupItem.subtitle = "\(stationAnnotation.stationToUse.nbBikesAvailable) bikes available and " + "\(stationAnnotation.stationToUse.nbDocksAvailable) docks available"
         
         UIView.animate(withDuration: 0.3) {
             
@@ -264,7 +268,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         
-        self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+        self.popupContentController.popupItem.title = "\(self.annotationsInView.count)"
         self.popupContentController.popupItem.subtitle = ""
         
         if view.isKind(of: AnnotationView.self) {
@@ -313,6 +317,15 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     func previewingViewController(for popupBar: LNPopupBar) -> UIViewController? {
         
         let vc = UIViewController()
+        vc.view.backgroundColor = UIColor.white
+        
+        let label = UILabel(frame: vc.view.bounds)
+        label.text = "Shit I Wasn't Prepared For This"
+        label.font = UIFont.systemFont(ofSize: 30, weight: UIFontWeightThin)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        
+        vc.view.addSubview(label)
         
         return vc
         
@@ -363,7 +376,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 
                 let annotations = self.mapView.annotations(in: self.mapView.visibleMapRect)
                 self.annotationsInView = Array(annotations)
-                self.popupContentController.popupItem.title = "\(self.annotationsInView.count) bike stations near you"
+                self.popupContentController.popupItem.title = "\(self.annotationsInView.count)"
                 
             }
             

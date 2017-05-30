@@ -12,7 +12,7 @@ import CoreLocation
 import SwiftyJSON
 import Alamofire
 
-struct BikeStation {
+class BikeStation: NSObject, NSCoding {
     
     var id: Int
     var name: String
@@ -28,6 +28,65 @@ struct BikeStation {
     var isRenting: Bool
     var isReturning: Bool
     var lastUpdated: String
+    
+    init(id: Int, name: String, location: CLLocation, distance: Double, address: String, capacity: Int, nbBikesAvailable: Int, nbDisabledBikes: Int, nbDocksAvailable: Int, nbDisabledDocks: Int, isInstalled: Bool, isRenting: Bool, isReturning: Bool, lastUpdated: String) {
+        
+        self.id = id
+        self.name = name
+        self.location = location
+        self.distance = distance
+        self.address = address
+        self.capacity = capacity
+        self.nbBikesAvailable = nbBikesAvailable
+        self.nbDisabledBikes = nbDisabledBikes
+        self.nbDocksAvailable = nbDocksAvailable
+        self.nbDisabledDocks = nbDisabledDocks
+        self.isInstalled = isInstalled
+        self.isRenting = isRenting
+        self.isReturning = isReturning
+        self.lastUpdated = lastUpdated
+        
+    }
+    
+    required convenience init?(coder aDecoder: NSCoder) {
+        
+        let id = aDecoder.decodeInteger(forKey: "id")
+        let name = aDecoder.decodeObject(forKey: "name") as! String
+        let location = aDecoder.decodeObject(forKey: "location") as! CLLocation
+        let distance = aDecoder.decodeDouble(forKey: "distance")
+        let address = aDecoder.decodeObject(forKey: "address") as! String
+        let capacity = aDecoder.decodeInteger(forKey: "capacity")
+        let nbBikesAvailable = aDecoder.decodeInteger(forKey: "nbBikesAvailable")
+        let nbDisabledBikes = aDecoder.decodeInteger(forKey: "nbDisabledBikes")
+        let nbDocksAvailable = aDecoder.decodeInteger(forKey: "nbDocksAvailable")
+        let nbDisabledDocks = aDecoder.decodeInteger(forKey: "nbDisabledDocks")
+        let isInstalled = aDecoder.decodeBool(forKey: "isInstalled")
+        let isRenting = aDecoder.decodeBool(forKey: "isRenting")
+        let isReturning = aDecoder.decodeBool(forKey: "isReturning")
+        let lastUpdated = aDecoder.decodeObject(forKey: "lastUpdated") as! String
+        
+        self.init(id: id, name: name, location: location, distance: distance, address: address, capacity: capacity, nbBikesAvailable: nbBikesAvailable, nbDisabledBikes: nbDisabledBikes, nbDocksAvailable: nbDocksAvailable, nbDisabledDocks: nbDisabledDocks, isInstalled: isInstalled, isRenting: isRenting, isReturning: isReturning, lastUpdated: lastUpdated)
+        
+    }
+    
+    func encode(with aCoder: NSCoder) {
+        
+        aCoder.encode(id, forKey: "id")
+        aCoder.encode(name, forKey: "name")
+        aCoder.encode(location, forKey: "location")
+        aCoder.encode(distance, forKey: "distance")
+        aCoder.encode(address, forKey: "address")
+        aCoder.encode(capacity, forKey: "capacity")
+        aCoder.encode(nbBikesAvailable, forKey: "nbBikesAvailable")
+        aCoder.encode(nbDisabledBikes, forKey: "nbDisabledBikes")
+        aCoder.encode(nbDocksAvailable, forKey: "nbDocksAvailable")
+        aCoder.encode(nbDisabledDocks, forKey: "nbDisabledDocks")
+        aCoder.encode(isInstalled, forKey: "isInstalled")
+        aCoder.encode(isRenting, forKey: "isRenting")
+        aCoder.encode(isReturning, forKey: "isReturning")
+        aCoder.encode(lastUpdated, forKey: "lastUpdated")
+        
+    }
     
 }
 
@@ -98,6 +157,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     var filteredBikeStations = [BikeStation]()
     var favouriteBikeStations = [BikeStation]()
     
+    var defaults = UserDefaults.standard
     var resultSearchController = UISearchController(searchResultsController: nil)
     var didSelectNewStation = false
     
@@ -109,7 +169,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadEverything()
+        // loadEverything()
         
     }
 
@@ -145,10 +205,36 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             if success {
                 
                 self.makeStations()
-                print(self.bikeStations.count)
+                self.loadFavourites()
                 
             }
             
+        }
+        
+    }
+    
+    func loadFavourites() {
+        
+        if self.defaults.object(forKey: "favourites") == nil {
+            
+            self.tableView.reloadData()
+            
+        } else {
+            
+            // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
+            
+            if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
+                
+                if let decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
+                    
+                    self.favouriteBikeStations = decodedStations
+                    
+                    self.tableView.reloadData()
+                    
+                }
+                
+            }
+        
         }
         
     }
@@ -336,12 +422,68 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         let favourite = UITableViewRowAction(style: .normal, title: "Favourite") { (action, index) in
             
-            let alert = UIAlertController(title: "Favourited", message: "Doesn't work yet though...", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            if self.favouriteBikeStations.contains(where: { $0.id == self.bikeStations[index.row].id }) {
+                
+                // already has it in here
+                
+                self.tableView.reloadData()
+                
+            } else {
+                
+                self.favouriteBikeStations.append(self.bikeStations[index.row])
+                
+                if self.defaults.object(forKey: "favourites") == nil {
+                    
+                    // no favs, encode arr and replace
+                    
+                    let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self.favouriteBikeStations)
+                    self.defaults.set(encodedData, forKey: "favourites")
+                    self.defaults.synchronize()
+                    
+                    self.tableView.reloadData()
+                    
+                } else {
+                    
+                    // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
+                    
+                    if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
+                        
+                        if var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
+                            
+                            if !(decodedStations.contains(where: { $0.id == self.bikeStations[index.row].id })) {
+                                
+                                decodedStations.append(self.bikeStations[index.row])
+                                
+                                let alert = UIAlertController(title: "Added To Favourites", message: "Successfully added in your favourites!", preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                                self.present(alert, animated: true, completion: nil)
+                                
+                            } else {
+                                
+                                let alert = UIAlertController(title: "Already In Favourites", message: "The Bike Station you are trying to add is already in your favourites.", preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                                self.present(alert, animated: true, completion: nil)
+                                
+                            }
+                            
+                            print(decodedStations)
+                            print(self.favouriteBikeStations)
+                            
+                            self.tableView.reloadData()
+                            
+                            let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
+                            self.defaults.set(encode, forKey: "favourites")
+                            self.defaults.synchronize()
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+            }
             
             // TODO:
-            // Use UserDefaults for storing array
             // Use code from EatWhat for multiple sections
             
         }
@@ -352,10 +494,40 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         return [favourite]
         
     }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        
+        if tableView.numberOfSections > 1 {
+            
+            if section == 0 {
+                
+                return "FAVOURITES"
+                
+            } else {
+                
+                return "ALL BIKE STATIONS"
+                
+            }
+            
+        } else {
+            
+            return "ALL BIKE STATIONS"
+            
+        }
+        
+    }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         
-        return 1
+        if self.favouriteBikeStations.count > 0 {
+            
+            return 2
+            
+        } else {
+            
+            return 1
+            
+        }
         
     }
 
@@ -367,7 +539,23 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             
         } else {
             
-            return self.bikeStations.count
+            if tableView.numberOfSections > 1 {
+                
+                if section == 0 {
+                    
+                    return self.favouriteBikeStations.count
+                    
+                } else {
+                    
+                    return self.bikeStations.count
+                    
+                }
+                
+            } else {
+                
+                return self.bikeStations.count
+                
+            }
             
         }
         
@@ -377,12 +565,16 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        popupItem.title = self.bikeStations[indexPath.row].address
-        popupItem.subtitle = "\(self.bikeStations[indexPath.row].nbBikesAvailable)" + " bikes available and " + "\(self.bikeStations[indexPath.row].nbDocksAvailable)" + " docks available"
+        // popupItem.title = self.bikeStations[indexPath.row].address
+        // popupItem.subtitle = "\(self.bikeStations[indexPath.row].nbBikesAvailable)" + " bikes available and " + "\(self.bikeStations[indexPath.row].nbDocksAvailable)" + " docks available"
         
         if let del = delegate {
             
-            del.selected(self.bikeStations[indexPath.row])
+            if self.resultSearchController.isActive {
+                del.selected(self.filteredBikeStations[indexPath.row])
+            } else {
+                del.selected(self.bikeStations[indexPath.row])
+            }
             
         }
         
@@ -410,7 +602,23 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             
         } else {
             
-            cell.station = self.bikeStations[indexPath.row]
+            if tableView.numberOfSections > 1 {
+                
+                if indexPath.section == 0 {
+                    
+                    cell.station = self.favouriteBikeStations[indexPath.row]
+                    
+                } else {
+                    
+                    cell.station = self.bikeStations[indexPath.row]
+                    
+                }
+                
+            } else {
+                
+                cell.station = self.bikeStations[indexPath.row]
+                
+            }
             
         }
 
