@@ -74,11 +74,8 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
         
         self.getDirections.addGestureRecognizer(gestureRecog)
         self.getDirections.addTarget(self, action: #selector(self.openMapsApp), for: .touchUpInside)
-        self.getDirections.setBackgroundColor(color: UIColor(red:0.07, green:0.61, blue:0.93, alpha:1.0), forState: .normal)
-        self.getDirections.setBackgroundColor(color: UIColor(red:0.06, green:0.41, blue:0.75, alpha:1.0), forState: .selected)
         
         let object = defaults.object(forKey: "defaultMapsApp") as! String
-        print(object)
         
         self.getDirections.setImage(UIImage(named: object)?.withRenderingMode(.alwaysOriginal), for: .normal)
         

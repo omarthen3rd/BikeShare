@@ -169,13 +169,6 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // loadEverything()
-        
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -199,6 +192,8 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         setupTheme()
         
         currentLocation = CLLocation(latitude: 43.6628917, longitude: -79.39565640000001)
+        
+        print("ran this")
         
         loadStations { (success) in
             
@@ -250,6 +245,16 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             controller.searchBar.searchBarStyle = UISearchBarStyle.minimal
             controller.searchBar.isTranslucent = true
             controller.searchBar.tintColor = self.tintColor
+            
+            let blurryBG = UIView(frame: controller.searchBar.frame)
+            blurryBG.backgroundColor = UIColor.clear
+            let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
+            let blurView = UIVisualEffectView(effect: blurEffect)
+            blurView.frame = controller.searchBar.frame
+            blurryBG.addSubview(blurView)
+            
+            controller.searchBar.insertSubview(blurryBG, at: 0)
+            
             let textSearchBar = controller.searchBar.value(forKey: "searchField") as? UITextField
             textSearchBar?.textColor = UIColor.black
             let placeholderTextSearchBar = textSearchBar!.value(forKey: "placeholderLabel") as? UILabel
@@ -268,6 +273,9 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         let searchOffset = CGPoint(x: 0, y: 44)
         tableView.setContentOffset(searchOffset, animated: false)
+        
+        let blurEffect = UIBlurEffect(style: .extraLight)
+        tableView.separatorEffect = UIVibrancyEffect(blurEffect: blurEffect)
         
         self.title = "BikeShare"
         self.navigationController?.navigationBar.tintColor = tintColor
@@ -375,11 +383,25 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
     }
     
+    private var lastContentOffset: CGFloat = 0
+    
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        if self.resultSearchController.isActive {
-            self.resultSearchController.isActive = false
-            self.resultSearchController.resignFirstResponder()
+        if self.lastContentOffset > scrollView.contentOffset.y {
+            
+            if self.resultSearchController.isActive {
+                
+                self.resultSearchController.isActive = false
+                self.resultSearchController.resignFirstResponder()
+                
+            }
+            
+            // move up
+            
+        } else if self.lastContentOffset < scrollView.contentOffset.y {
+            
+            print("scrolled down")
+            
         }
         
         /*
@@ -612,7 +634,11 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         if tableView.numberOfSections > 1 {
             
-            if section == 0 {
+            if self.resultSearchController.isActive {
+                
+                return "ALL BIKE STATIONS"
+                
+            } else if section == 0 {
                 
                 return "FAVOURITES"
                 
@@ -634,7 +660,15 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         if self.favouriteBikeStations.count > 0 {
             
-            return 2
+            if self.resultSearchController.isActive {
+                
+                return 1
+                
+            } else {
+                
+                return 2
+                
+            }
             
         } else {
             
@@ -678,15 +712,30 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        // popupItem.title = self.bikeStations[indexPath.row].address
-        // popupItem.subtitle = "\(self.bikeStations[indexPath.row].nbBikesAvailable)" + " bikes available and " + "\(self.bikeStations[indexPath.row].nbDocksAvailable)" + " docks available"
-        
         if let del = delegate {
             
             if self.resultSearchController.isActive {
                 del.selected(self.filteredBikeStations[indexPath.row])
             } else {
-                del.selected(self.bikeStations[indexPath.row])
+                
+                if tableView.numberOfSections > 1 {
+                    
+                    if indexPath.section == 0 {
+                        
+                        del.selected(self.favouriteBikeStations[indexPath.row])
+                        
+                    } else {
+                        
+                        del.selected(self.bikeStations[indexPath.row])
+                        
+                    }
+                    
+                } else {
+                    
+                    del.selected(self.bikeStations[indexPath.row])
+                    
+                }
+                
             }
             
         }
@@ -734,7 +783,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             }
             
         }
-
+        
         return cell
     }
 
@@ -753,14 +802,30 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                 
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailTableViewController
                 
-                // for when implementing searchBar
                 if resultSearchController.isActive {
                 
                     stationDetail = filteredBikeStations[indexPath.row]
                     
                 } else {
                     
-                    stationDetail = bikeStations[indexPath.row]
+                    if tableView.numberOfSections > 1 {
+                        
+                        if indexPath.section == 0 {
+                            
+                            stationDetail = favouriteBikeStations[indexPath.row]
+                            
+                        } else {
+                            
+                            stationDetail = bikeStations[indexPath.row]
+                            
+                        }
+                        
+                    } else {
+                        
+                        stationDetail = bikeStations[indexPath.row]
+                        
+                    }
+
                     
                 }
                 

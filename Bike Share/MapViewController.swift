@@ -94,6 +94,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             self.popupContentController = self.storyboard?.instantiateViewController(withIdentifier: "MainTableViewController") as! MainTableViewController
             self.popupContentController.loadEverything()
             self.popupContentController.bikeStations = self.bikeStations
+            print("current count: " + "\(self.popupContentController.bikeStations.count)")
             self.popupContentController.tableView.backgroundColor = UIColor.clear
             self.popupContentController.tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
             self.popupContentController.delegate = self
