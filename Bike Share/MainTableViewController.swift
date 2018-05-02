@@ -14,22 +14,22 @@ import Alamofire
 
 class BikeStation: NSObject, NSCoding {
     
-    var id: Int
-    var name: String
-    var location: CLLocation
-    var distance: Double
-    var address: String
-    var capacity: Int
-    var nbBikesAvailable: Int
-    var nbDisabledBikes: Int
-    var nbDocksAvailable: Int
-    var nbDisabledDocks: Int
-    var isInstalled: Bool
-    var isRenting: Bool
-    var isReturning: Bool
-    var lastUpdated: String
+    var id = 0
+    var name = ""
+    var location = CLLocation()
+    var distance = 0.0
+    var address = ""
+    var capacity = 0
+    var nbBikesAvailable = 0
+    var nbDisabledBikes = 0
+    var nbDocksAvailable = 0
+    var nbDisabledDocks = 0
+    var isInstalled = false
+    var isRenting = false
+    var isReturning = false
+    var lastUpdated = ""
     
-    init(id: Int, name: String, location: CLLocation, distance: Double, address: String, capacity: Int, nbBikesAvailable: Int, nbDisabledBikes: Int, nbDocksAvailable: Int, nbDisabledDocks: Int, isInstalled: Bool, isRenting: Bool, isReturning: Bool, lastUpdated: String) {
+    init(id: Int, name: String, location: CLLocation, distance: Double, address: String, capacity: Int) {
         
         self.id = id
         self.name = name
@@ -37,6 +37,11 @@ class BikeStation: NSObject, NSCoding {
         self.distance = distance
         self.address = address
         self.capacity = capacity
+        
+    }
+    
+    init(nbBikesAvailable: Int, nbDisabledBikes: Int, nbDocksAvailable: Int, nbDisabledDocks: Int, isInstalled: Bool, isRenting: Bool, isReturning: Bool, lastUpdated: String) {
+
         self.nbBikesAvailable = nbBikesAvailable
         self.nbDisabledBikes = nbDisabledBikes
         self.nbDocksAvailable = nbDocksAvailable
@@ -56,16 +61,8 @@ class BikeStation: NSObject, NSCoding {
         let distance = aDecoder.decodeDouble(forKey: "distance")
         let address = aDecoder.decodeObject(forKey: "address") as! String
         let capacity = aDecoder.decodeInteger(forKey: "capacity")
-        let nbBikesAvailable = aDecoder.decodeInteger(forKey: "nbBikesAvailable")
-        let nbDisabledBikes = aDecoder.decodeInteger(forKey: "nbDisabledBikes")
-        let nbDocksAvailable = aDecoder.decodeInteger(forKey: "nbDocksAvailable")
-        let nbDisabledDocks = aDecoder.decodeInteger(forKey: "nbDisabledDocks")
-        let isInstalled = aDecoder.decodeBool(forKey: "isInstalled")
-        let isRenting = aDecoder.decodeBool(forKey: "isRenting")
-        let isReturning = aDecoder.decodeBool(forKey: "isReturning")
-        let lastUpdated = aDecoder.decodeObject(forKey: "lastUpdated") as! String
         
-        self.init(id: id, name: name, location: location, distance: distance, address: address, capacity: capacity, nbBikesAvailable: nbBikesAvailable, nbDisabledBikes: nbDisabledBikes, nbDocksAvailable: nbDocksAvailable, nbDisabledDocks: nbDisabledDocks, isInstalled: isInstalled, isRenting: isRenting, isReturning: isReturning, lastUpdated: lastUpdated)
+        self.init(id: id, name: name, location: location, distance: distance, address: address, capacity: capacity)
         
     }
     
@@ -77,14 +74,6 @@ class BikeStation: NSObject, NSCoding {
         aCoder.encode(distance, forKey: "distance")
         aCoder.encode(address, forKey: "address")
         aCoder.encode(capacity, forKey: "capacity")
-        aCoder.encode(nbBikesAvailable, forKey: "nbBikesAvailable")
-        aCoder.encode(nbDisabledBikes, forKey: "nbDisabledBikes")
-        aCoder.encode(nbDocksAvailable, forKey: "nbDocksAvailable")
-        aCoder.encode(nbDisabledDocks, forKey: "nbDisabledDocks")
-        aCoder.encode(isInstalled, forKey: "isInstalled")
-        aCoder.encode(isRenting, forKey: "isRenting")
-        aCoder.encode(isReturning, forKey: "isReturning")
-        aCoder.encode(lastUpdated, forKey: "lastUpdated")
         
     }
     
@@ -193,16 +182,11 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
         currentLocation = CLLocation(latitude: 43.6628917, longitude: -79.39565640000001)
         
-        print("ran this")
-        
-        loadStations { (success) in
+        // main func for calling both 'loadStationInformation' and 'loadStationStatus'
+        loadCombineStations { (_) in
             
-            if success {
-                
-                self.makeStations()
-                self.loadFavourites()
-                
-            }
+            // after func is completed, organize stations by distance
+            self.makeStations()
             
         }
         
@@ -268,7 +252,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
             
         })()
         self.tableView.reloadData()
-        
+                
         definesPresentationContext = true
         
         let searchOffset = CGPoint(x: 0, y: 44)
@@ -349,8 +333,103 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                 
                 for n in 0..<(id.count) {
                     
-                    let newStation = BikeStation(id: id[n], name: name[n], location: location[n], distance: distance[n], address: address[n], capacity: capacity[n], nbBikesAvailable: nbBikesAvailable[n], nbDisabledBikes: nbDisabledBikes[n], nbDocksAvailable: nbDocksAvailable[n], nbDisabledDocks: nbDisabledDocks[n], isInstalled: isInstalled[n], isRenting: isRenting[n], isReturning: isReturning[n], lastUpdated: lastUpdated[n])
+                    // let newStation = BikeStation(id: id[n], name: name[n], location: location[n], distance: distance[n], address: address[n], capacity: capacity[n], nbBikesAvailable: nbBikesAvailable[n], nbDisabledBikes: nbDisabledBikes[n], nbDocksAvailable: nbDocksAvailable[n], nbDisabledDocks: nbDisabledDocks[n], isInstalled: isInstalled[n], isRenting: isRenting[n], isReturning: isReturning[n], lastUpdated: lastUpdated[n])
+                    // self.bikeStations.append(newStation)
+                    
+                }
+                
+                completionHandler(true)
+                
+            }
+            
+        }
+        
+    }
+    
+    func loadCombineStations(completionHandler: @escaping (Bool) -> ()) {
+        
+        loadStationInformation { (success) in
+            
+            self.loadStationStatus(completionHandler: { (success) in
+                
+                completionHandler(true)
+                
+            })
+            
+        }
+        
+    }
+    
+    func loadStationInformation(completionHandler: @escaping (Bool) -> ()) {
+        
+        Alamofire.request("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_information").responseJSON { (Response) in
+            
+            if let value = Response.result.value {
+                
+                let json = JSON(value)
+                
+                let lastDataUpdate = json["last_updated"].doubleValue
+                // let lastUpdate = Date(timeIntervalSince1970: lastDataUpdate)
+                                
+                for station in json["data"]["stations"].arrayValue {
+                    
+                    let id = station["station_id"].intValue
+                    let name = station["name"].stringValue
+                    let location = CLLocation(latitude: station["lat"].doubleValue, longitude: station["lon"].doubleValue)
+                    let distance = location.distance(from: self.currentLocation)
+                    let address = station["address"].stringValue
+                    let capacity = station["capacity"].intValue
+                    
+                    let newStation = BikeStation(id: id, name: name, location: location, distance: distance, address: address, capacity: capacity)
                     self.bikeStations.append(newStation)
+                    
+                }
+                
+                completionHandler(true)
+            }
+            
+        }
+        
+    }
+    
+    func loadStationStatus(completionHandler: @escaping (Bool) -> ()) {
+        
+        Alamofire.request("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_status").responseJSON { (Response) in
+            
+            if let value = Response.result.value {
+                
+                let json = JSON(value)
+                
+                let stationsArr = json["data"]["stations"].arrayValue
+                
+                var stationsIndex = 0
+                for bikeStation in self.bikeStations {
+                    
+                    let station = stationsArr[stationsIndex]
+                    
+                    let lastDate = Date(timeIntervalSince1970: station["last_reported"].doubleValue)
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.timeStyle = .short
+                    
+                    let nbBikesAvailable = station["num_bikes_available"].intValue
+                    let nbDisabledBikes = station["num_bikes_disabled"].intValue
+                    let nbDocksAvailable = station["num_docks_available"].intValue
+                    let nbDisabledDocks = station["num_docks_disabled"].intValue
+                    let isInstalled = station["is_installed"].boolValue
+                    let isRenting = station["is_renting"].boolValue
+                    let isReturning = station["is_returning"].boolValue
+                    let lastUpdated = dateFormatter.string(from: lastDate)
+                    
+                    bikeStation.nbBikesAvailable = nbBikesAvailable
+                    bikeStation.nbDisabledBikes = nbDisabledBikes
+                    bikeStation.nbDocksAvailable = nbDocksAvailable
+                    bikeStation.nbDisabledDocks = nbDisabledDocks
+                    bikeStation.isInstalled = isInstalled
+                    bikeStation.isRenting = isRenting
+                    bikeStation.isReturning = isReturning
+                    bikeStation.lastUpdated = lastUpdated
+                    
+                    stationsIndex += 1
                     
                 }
                 
@@ -396,46 +475,10 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                 
             }
             
-            // move up
-            
-        } else if self.lastContentOffset < scrollView.contentOffset.y {
-            
-            print("scrolled down")
+            // scrolling up
             
         }
-        
-        /*
-        
-        if self.resultSearchController.isActive {
-            self.resultSearchController.searchBar.searchBarStyle = UISearchBarStyle.default
-            self.resultSearchController.searchBar.barTintColor = UIColor.white
-            self.resultSearchController.searchBar.layer.borderColor = UIColor.clear.cgColor
-            
-            for subview in self.resultSearchController.searchBar.subviews {
-                
-                for view in subview.subviews {
-                    
-                    if view.isKind(of: NSClassFromString("UINavigationButton")!) {
-                        
-                        let cancelBtn = view as! UIButton
-                        cancelBtn.setTitleColor(self.tintColor, for: .normal)
-                        
-                    }
-                    
-                }
-                
-            }
-            
-        }
-        
-        if !(self.resultSearchController.isActive) {
-            self.resultSearchController.searchBar.searchBarStyle = UISearchBarStyle.minimal
-        }
-        
-        self.resultSearchController.searchBar.resignFirstResponder()
-        
-        */
- 
+         
     }
     
     // MARK: - Table view data source
@@ -510,10 +553,6 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                                         
                                         decodedStations.append(self.bikeStations[index.row])
                                         
-                                        let alert = UIAlertController(title: "Added To Favourites", message: "Successfully added in your favourites!", preferredStyle: .alert)
-                                        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                                        self.present(alert, animated: true, completion: nil)
-                                        
                                     } else {
                                         
                                         let alert = UIAlertController(title: "Already In Favourites", message: "The Bike Station you are trying to add is already in your favourites.", preferredStyle: .alert)
@@ -539,19 +578,16 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                         
                     }
                     
-                    // TODO:
-                    // Use code from EatWhat for multiple sections
-                    
                 }
                 
                 favourite.backgroundColor = UIColor.blue
-                
                 
                 return [favourite]
                 
             }
             
         } else {
+            
             
             let favourite = UITableViewRowAction(style: .normal, title: "Favourite") { (action, index) in
                 
@@ -616,13 +652,9 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                     
                 }
                 
-                // TODO:
-                // Use code from EatWhat for multiple sections
-                
             }
             
             favourite.backgroundColor = UIColor.blue
-            
             
             return [favourite]
             
