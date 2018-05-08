@@ -92,17 +92,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             self.popupBar.customBarViewController = self.customPopUpBar
             
             self.popupContentController = self.storyboard?.instantiateViewController(withIdentifier: "MainTableViewController") as! MainTableViewController
-            self.popupContentController.loadEverything()
-            self.popupContentController.bikeStations = self.bikeStations
-            print("current count: " + "\(self.popupContentController.bikeStations.count)")
             self.popupContentController.tableView.backgroundColor = UIColor.clear
-            self.popupContentController.tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+            self.popupContentController.tableView.backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .extraLight))
             self.popupContentController.delegate = self
             self.popupContentController.popupItem.title = "\(self.bikeStations.count)"
-            
-            if self.popupContentController.bikeStations.count == 0 {
-                // self.popupContentController.loadEverything()
-            }
             
             targetVC.popupBar.previewingDelegate = self
             targetVC.popupBar.backgroundStyle = UIBlurEffectStyle.extraLight
@@ -125,20 +118,19 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func loadStations(completionHandler: @escaping (Bool) -> ()) {
         
-        var id = [Int]()
-        var name = [String]()
-        var location = [CLLocation]()
-        var distance = [Double]()
-        var address = [String]()
-        var capacity = [Int]()
-        var nbBikesAvailable = [Int]()
-        var nbDisabledBikes = [Int]()
-        var nbDocksAvailable = [Int]()
-        var nbDisabledDocks = [Int]()
-        var isInstalled = [Bool]()
-        var isRenting = [Bool]()
-        var isReturning = [Bool]()
-        var lastUpdated = [String]()
+        loadStationInformation { (success) in
+            
+            self.loadStationStatus(completionHandler: { (success) in
+                
+                completionHandler(true)
+                
+            })
+            
+        }
+        
+    }
+    
+    func loadStationInformation(completionHandler: @escaping (Bool) -> ()) {
         
         Alamofire.request("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_information").responseJSON { (Response) in
             
@@ -146,25 +138,31 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 
                 let json = JSON(value)
                 
-                let lastDataUpdate = json["last_updated"].doubleValue
-                let lastUpdate = Date(timeIntervalSince1970: lastDataUpdate)
+                // let lastDataUpdate = json["last_updated"].doubleValue
+                // let lastUpdate = Date(timeIntervalSince1970: lastDataUpdate)
                 
                 for station in json["data"]["stations"].arrayValue {
                     
-                    id.append(station["station_id"].intValue)
-                    name.append(station["name"].stringValue)
-                    let locationToUse = CLLocation(latitude: station["lat"].doubleValue, longitude: station["lon"].doubleValue)
-                    location.append(locationToUse)
-                    distance.append(locationToUse.distance(from: self.currentLocation))
-                    address.append(station["address"].stringValue)
-                    capacity.append(station["capacity"].intValue)
+                    let id = station["station_id"].intValue
+                    let name = station["name"].stringValue
+                    let location = CLLocation(latitude: station["lat"].doubleValue, longitude: station["lon"].doubleValue)
+                    let distance = location.distance(from: self.currentLocation)
+                    let address = station["address"].stringValue
+                    let capacity = station["capacity"].intValue
+                    
+                    let newStation = BikeStation(id: id, name: name, location: location, distance: distance, address: address, capacity: capacity)
+                    self.bikeStations.append(newStation)
                     
                 }
                 
+                completionHandler(true)
             }
             
         }
         
+    }
+    
+    func loadStationStatus(completionHandler: @escaping (Bool) -> ()) {
         
         Alamofire.request("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_status").responseJSON { (Response) in
             
@@ -172,27 +170,36 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 
                 let json = JSON(value)
                 
-                for station in json["data"]["stations"].arrayValue {
+                let stationsArr = json["data"]["stations"].arrayValue
+                
+                var stationsIndex = 0
+                for bikeStation in self.bikeStations {
+                    
+                    let station = stationsArr[stationsIndex]
                     
                     let lastDate = Date(timeIntervalSince1970: station["last_reported"].doubleValue)
                     let dateFormatter = DateFormatter()
                     dateFormatter.timeStyle = .short
                     
-                    nbBikesAvailable.append(station["num_bikes_available"].intValue)
-                    nbDisabledBikes.append(station["num_bikes_disabled"].intValue)
-                    nbDocksAvailable.append(station["num_docks_available"].intValue)
-                    nbDisabledDocks.append(station["num_docks_disabled"].intValue)
-                    isInstalled.append(station["is_installed"].boolValue)
-                    isRenting.append(station["is_renting"].boolValue)
-                    isReturning.append(station["is_returning"].boolValue)
-                    lastUpdated.append(dateFormatter.string(from: lastDate))
+                    let nbBikesAvailable = station["num_bikes_available"].intValue
+                    let nbDisabledBikes = station["num_bikes_disabled"].intValue
+                    let nbDocksAvailable = station["num_docks_available"].intValue
+                    let nbDisabledDocks = station["num_docks_disabled"].intValue
+                    let isInstalled = station["is_installed"].boolValue
+                    let isRenting = station["is_renting"].boolValue
+                    let isReturning = station["is_returning"].boolValue
+                    let lastUpdated = dateFormatter.string(from: lastDate)
                     
-                }
-                
-                for n in 0..<(id.count) {
+                    bikeStation.nbBikesAvailable = nbBikesAvailable
+                    bikeStation.nbDisabledBikes = nbDisabledBikes
+                    bikeStation.nbDocksAvailable = nbDocksAvailable
+                    bikeStation.nbDisabledDocks = nbDisabledDocks
+                    bikeStation.isInstalled = isInstalled
+                    bikeStation.isRenting = isRenting
+                    bikeStation.isReturning = isReturning
+                    bikeStation.lastUpdated = lastUpdated
                     
-                    // let newStation = BikeStation(id: id[n], name: name[n], location: location[n], distance: distance[n], address: address[n], capacity: capacity[n], nbBikesAvailable: nbBikesAvailable[n], nbDisabledBikes: nbDisabledBikes[n], nbDocksAvailable: nbDocksAvailable[n], nbDisabledDocks: nbDisabledDocks[n], isInstalled: isInstalled[n], isRenting: isRenting[n], isReturning: isReturning[n], lastUpdated: lastUpdated[n])
-                    // self.bikeStations.append(newStation)
+                    stationsIndex += 1
                     
                 }
                 
@@ -252,10 +259,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         calloutView.addSubview(button)
         
         calloutView.alpha = 0.0
-        
-        // popupContentController.popupItem.title = stationAnnotation.stationToUse.address
-        // popupContentController.popupItem.subtitle = "\(stationAnnotation.stationToUse.nbBikesAvailable) bikes available and " + "\(stationAnnotation.stationToUse.nbDocksAvailable) docks available"
-        
+                
         UIView.animate(withDuration: 0.3) {
             
             calloutView.alpha = 1.0
@@ -321,7 +325,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         vc.view.backgroundColor = UIColor.white
         
         let label = UILabel(frame: vc.view.bounds)
-        label.text = "Shit I Wasn't Prepared For This"
+        label.text = "Oh Boy I Wasn't Prepared For This"
         label.font = UIFont.systemFont(ofSize: 30, weight: UIFontWeightThin)
         label.textAlignment = .center
         label.numberOfLines = 0

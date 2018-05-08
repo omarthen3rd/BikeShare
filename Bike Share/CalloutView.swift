@@ -13,8 +13,9 @@ class CalloutView: UIView {
     @IBOutlet var mainView: UIView!
     @IBOutlet var stationBikesAvailable: UILabel!
     @IBOutlet var stationName: UILabel!
+    @IBOutlet var distanceAway: UILabel!
     @IBOutlet var lastUpdated: UILabel!
-    @IBOutlet var stationMaxCapacity: UILabel!
+    @IBOutlet var stationAvailableDocks: UILabel!
     @IBOutlet var isReturning: UILabel!
     @IBOutlet var isRenting: UILabel!
     
@@ -30,10 +31,36 @@ class CalloutView: UIView {
             mainView.layer.shadowOpacity = 0.2
             mainView.layer.shadowPath = UIBezierPath(roundedRect: mainView.bounds, cornerRadius: 15).cgPath
             
-            stationBikesAvailable.text = "\(station.nbBikesAvailable)"
+            var distance = String()
+            
+            let distanceMeters = Measurement(value: station.distance, unit: UnitLength.meters)
+            let distanceKilometers = distanceMeters.converted(to: UnitLength.kilometers)
+            
+            if distanceKilometers.value < 1.0 {
+                
+                let numberFormatter = NumberFormatter()
+                numberFormatter.maximumFractionDigits = 2
+                let measurementFormatter = MeasurementFormatter()
+                measurementFormatter.unitOptions = .providedUnit
+                measurementFormatter.numberFormatter = numberFormatter
+                distance = "0" + measurementFormatter.string(from: distanceKilometers)
+                
+            } else {
+                
+                let numberFormatter = NumberFormatter()
+                numberFormatter.maximumFractionDigits = 1
+                let measurementFormatter = MeasurementFormatter()
+                measurementFormatter.unitOptions = .providedUnit
+                measurementFormatter.numberFormatter = numberFormatter
+                distance = measurementFormatter.string(from: distanceKilometers)
+                
+            }
+            
             stationName.text = station.address
-            lastUpdated.text = "last updated \(station.lastUpdated)"
-            stationMaxCapacity.text = "\(station.capacity)"
+            distanceAway.text = "\(distance) away"
+            lastUpdated.text = "updated \(station.lastUpdated)"
+            stationBikesAvailable.text = "\(station.nbBikesAvailable)"
+            stationAvailableDocks.text = "\(station.nbDocksAvailable)"
             isReturning.text = boolToString(station.isReturning)
             isRenting.text = boolToString(station.isRenting)
             
@@ -43,16 +70,8 @@ class CalloutView: UIView {
     
     func boolToString(_ bool: Bool) -> String {
         
-        if bool {
-            
-            return "✓"
-            
-        } else {
-            
-            return "𐄂"
-            
-        }
-        
+        // if bool ? if true : else
+        return bool ? "✓" : "𐄂"
     }
     
 }

@@ -12,6 +12,81 @@ import CoreLocation
 import SwiftyJSON
 import Alamofire
 
+public extension Int {
+    /// returns number of digits in Int number
+    public var digitCount: Int {
+        get {
+            return numberOfDigits(in: self)
+        }
+    }
+    /// returns number of useful digits in Int number
+    public var usefulDigitCount: Int {
+        get {
+            var count = 0
+            for digitOrder in 0..<self.digitCount {
+                /// get each order digit from self
+                let digit = self % (Int(pow(10, digitOrder + 1) as NSDecimalNumber))
+                    / Int(pow(10, digitOrder) as NSDecimalNumber)
+                if isUseful(digit) { count += 1 }
+            }
+            return count
+        }
+    }
+    // private recursive method for counting digits
+    private func numberOfDigits(in number: Int) -> Int {
+        if abs(number) < 10 {
+            return 1
+        } else {
+            return 1 + numberOfDigits(in: number/10)
+        }
+    }
+    // returns true if digit is useful in respect to self
+    private func isUseful(_ digit: Int) -> Bool {
+        return (digit != 0) && (self % digit == 0)
+    }
+}
+
+extension NSMutableAttributedString {
+    
+    func setColorForText(_ textToFind: String, with color: UIColor) {
+        let range = self.mutableString.range(of: textToFind, options: .caseInsensitive)
+        if range.location != NSNotFound {
+            addAttribute(NSForegroundColorAttributeName, value: color, range: range)
+        }
+    }
+    
+    func setColorForRange(_ range: NSRange, with color: UIColor) {
+        if range.location != NSNotFound {
+            addAttribute(NSForegroundColorAttributeName, value: color, range: range)
+        }
+    }
+    
+    func setBoldForText(_ textToFind: String) {
+        let range = self.mutableString.range(of: textToFind, options: .caseInsensitive)
+        if range.location != NSNotFound {
+            let attrs = [NSFontAttributeName : UIFont.systemFont(ofSize: 19, weight: UIFontWeightSemibold)]
+            addAttributes(attrs, range: range)
+        }
+        
+    }
+    
+    func setSizeForText(_ textToFind: String, with size: CGFloat) {
+        let range = self.mutableString.range(of: textToFind, options: .caseInsensitive)
+        if range.location != NSNotFound {
+            let attrs = [NSFontAttributeName : UIFont.systemFont(ofSize: size)]
+            addAttributes(attrs, range: range)
+        }
+        
+    }
+    
+}
+
+extension UIColor {
+    
+    static let specialGreen = UIColor(red: 0.00, green: 0.78, blue: 0.00, alpha: 1.0)
+    
+}
+
 class BikeStation: NSObject, NSCoding {
     
     var id = 0
@@ -98,7 +173,6 @@ class StationCell: UITableViewCell {
     @IBOutlet var stationName: UILabel!
     @IBOutlet var stationDistance: UILabel!
     @IBOutlet var stationCapacity: UILabel!
-    @IBOutlet var lastUpdated: UILabel!
     
     var station: BikeStation! {
         
@@ -130,9 +204,25 @@ class StationCell: UITableViewCell {
             }
             
             stationName.text = station.address
-            stationDistance.text = "\(distance) away from you"
-            stationCapacity.text = "\(station.nbBikesAvailable)"
-            lastUpdated.text = "last updated: \(station.lastUpdated)"
+            
+            // Start attributed label for capacity
+            
+            // get range of text to colour
+            let textColorRange_bikes = NSRange(location: 0, length: station.nbBikesAvailable.digitCount)
+            let textColorRange_docks = NSRange(location: station.nbBikesAvailable.digitCount + 9, length: station.nbDocksAvailable.digitCount)
+            let multipleText = "\(station.nbBikesAvailable) bikes · \(station.nbDocksAvailable) open docks"
+            
+            let attributedString = NSMutableAttributedString(string: multipleText)
+            attributedString.setColorForRange(textColorRange_bikes, with: UIColor.specialGreen)
+            attributedString.setBoldForText("\(station.nbBikesAvailable)")
+            attributedString.setColorForRange(textColorRange_docks, with: UIColor.specialGreen)
+            attributedString.setBoldForText("\(station.nbDocksAvailable)")
+            
+            stationDistance.attributedText = attributedString
+            
+            // End attributed label
+            
+            stationCapacity.text = "\(distance) away · updated at \(station.lastUpdated)"
             
         }
         
@@ -145,6 +235,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     var bikeStations = [BikeStation]()
     var filteredBikeStations = [BikeStation]()
     var favouriteBikeStations = [BikeStation]()
+    var favouriteBikeStationIDs = [Int]()
     
     var defaults = UserDefaults.standard
     var resultSearchController = UISearchController(searchResultsController: nil)
@@ -158,6 +249,8 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // call func to load everything
+        loadEverything()
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -178,12 +271,17 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     
     func loadEverything() {
         
+        print(favouritesExists())
+        
+        // setup ui for view
         setupTheme()
         
+        // set current location to U of T (for testing)
         currentLocation = CLLocation(latitude: 43.6628917, longitude: -79.39565640000001)
         
         // main func for calling both 'loadStationInformation' and 'loadStationStatus'
-        loadCombineStations { (_) in
+        loadFavourites()
+        loadStations { (_) in
             
             // after func is completed, organize stations by distance
             self.makeStations()
@@ -192,29 +290,63 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
     }
     
+    // load favourites from UserDefaults
     func loadFavourites() {
         
-        if self.defaults.object(forKey: "favourites") == nil {
+        // checks if favourites exist in UserDefaults by checking for nil value
+        let favouritesExist = self.defaults.object(forKey: "favourites") != nil
+        
+        if favouritesExist {
             
-            self.tableView.reloadData()
+            // favs are there, decode array and assign to favouriteBikeStationIDs
             
+            // access Data object from UserDefaults with key "favourites" and assign to variable 'decodedArr'
+            guard let decodedArr = self.defaults.object(forKey: "favourites") as? Data else { return }
+            // unarchive 'decodedArr' and typecast [Int] and assign to variable 'decodedStations'
+            guard let decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [Int] else { return }
+            // assign 'favouriteBikeStationIDs' to 'decodedStations'
+            self.favouriteBikeStationIDs = decodedStations
+        
         } else {
             
-            // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
+            // no favs, encode arr and replace with empty one
             
-            if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
-                
-                if let decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
-                    
-                    self.favouriteBikeStations = decodedStations
-                    
-                    self.tableView.reloadData()
-                    
-                }
-                
-            }
-        
+            let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self.favouriteBikeStationIDs)
+            self.defaults.set(encodedData, forKey: "favourites")
+            self.defaults.synchronize()
+            
         }
+        
+    }
+    
+    func favouritesExists() -> Bool {
+        
+        // access Data object from UserDefaults with key "favourites" and assign to variable 'decodedArr'
+        guard let decodedArr = self.defaults.object(forKey: "favourites") as? Data else { return false }
+        // unarchive 'decodedArr' and typecast [Int] and assign to variable 'decodedStations'
+        guard let _ = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [Int] else { return false }
+        return true
+        
+    }
+    
+    func addToFavourites(_ id: Int) {
+        // take id from favouriteBikeStationIDs -> add to UserDefaults
+        
+        self.favouriteBikeStationIDs.append(id)
+        
+        // access Data object from UserDefaults with key "favourites" and assign to variable 'decodedArr'
+        guard let decodedArr = self.defaults.object(forKey: "favourites") as? Data else { return }
+        // unarchive 'decodedArr' and typecast [Int] and assign to variable 'decodedStations'
+        guard var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [Int] else { return }
+        // assign 'decodedStations' to 'favouriteBikeStationIDs'
+        decodedStations = self.favouriteBikeStationIDs
+        
+        self.tableView.reloadData()
+        
+        // re-encode object and add to UserDefaults
+        let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
+        self.defaults.set(encode, forKey: "favourites")
+        self.defaults.synchronize()
         
     }
     
@@ -266,87 +398,8 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
     }
     
+    // func to load both station information/status func together
     func loadStations(completionHandler: @escaping (Bool) -> ()) {
-        
-        var id = [Int]()
-        var name = [String]()
-        var location = [CLLocation]()
-        var distance = [Double]()
-        var address = [String]()
-        var capacity = [Int]()
-        var nbBikesAvailable = [Int]()
-        var nbDisabledBikes = [Int]()
-        var nbDocksAvailable = [Int]()
-        var nbDisabledDocks = [Int]()
-        var isInstalled = [Bool]()
-        var isRenting = [Bool]()
-        var isReturning = [Bool]()
-        var lastUpdated = [String]()
-        
-        Alamofire.request("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_information").responseJSON { (Response) in
-            
-            if let value = Response.result.value {
-                
-                let json = JSON(value)
-                
-                let lastDataUpdate = json["last_updated"].doubleValue
-                let lastUpdate = Date(timeIntervalSince1970: lastDataUpdate)
-                
-                for station in json["data"]["stations"].arrayValue {
-                    
-                    id.append(station["station_id"].intValue)
-                    name.append(station["name"].stringValue)
-                    let locationToUse = CLLocation(latitude: station["lat"].doubleValue, longitude: station["lon"].doubleValue)
-                    location.append(locationToUse)
-                    distance.append(locationToUse.distance(from: self.currentLocation))
-                    address.append(station["address"].stringValue)
-                    capacity.append(station["capacity"].intValue)
-                    
-                }
-            }
-            
-        }
-        
-        
-        Alamofire.request("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_status").responseJSON { (Response) in
-            
-            if let value = Response.result.value {
-                
-                let json = JSON(value)
-                
-                for station in json["data"]["stations"].arrayValue {
-                    
-                    let lastDate = Date(timeIntervalSince1970: station["last_reported"].doubleValue)
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.timeStyle = .short
-                    
-                    nbBikesAvailable.append(station["num_bikes_available"].intValue)
-                    nbDisabledBikes.append(station["num_bikes_disabled"].intValue)
-                    nbDocksAvailable.append(station["num_docks_available"].intValue)
-                    nbDisabledDocks.append(station["num_docks_disabled"].intValue)
-                    isInstalled.append(station["is_installed"].boolValue)
-                    isRenting.append(station["is_renting"].boolValue)
-                    isReturning.append(station["is_returning"].boolValue)
-                    lastUpdated.append(dateFormatter.string(from: lastDate))
-                    
-                }
-                
-                for n in 0..<(id.count) {
-                    
-                    // let newStation = BikeStation(id: id[n], name: name[n], location: location[n], distance: distance[n], address: address[n], capacity: capacity[n], nbBikesAvailable: nbBikesAvailable[n], nbDisabledBikes: nbDisabledBikes[n], nbDocksAvailable: nbDocksAvailable[n], nbDisabledDocks: nbDisabledDocks[n], isInstalled: isInstalled[n], isRenting: isRenting[n], isReturning: isReturning[n], lastUpdated: lastUpdated[n])
-                    // self.bikeStations.append(newStation)
-                    
-                }
-                
-                completionHandler(true)
-                
-            }
-            
-        }
-        
-    }
-    
-    func loadCombineStations(completionHandler: @escaping (Bool) -> ()) {
         
         loadStationInformation { (success) in
             
@@ -360,6 +413,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         
     }
     
+    // loads station information (id, name, static intersection (location), distance, address, capacity)
     func loadStationInformation(completionHandler: @escaping (Bool) -> ()) {
         
         Alamofire.request("https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_information").responseJSON { (Response) in
@@ -368,7 +422,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                 
                 let json = JSON(value)
                 
-                let lastDataUpdate = json["last_updated"].doubleValue
+                // let lastDataUpdate = json["last_updated"].doubleValue
                 // let lastUpdate = Date(timeIntervalSince1970: lastDataUpdate)
                                 
                 for station in json["data"]["stations"].arrayValue {
@@ -381,7 +435,13 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                     let capacity = station["capacity"].intValue
                     
                     let newStation = BikeStation(id: id, name: name, location: location, distance: distance, address: address, capacity: capacity)
-                    self.bikeStations.append(newStation)
+                    
+                    // add station to either array to avoid repetition
+                    if self.favouriteBikeStationIDs.contains(id) {
+                        self.favouriteBikeStations.append(newStation)
+                    } else {
+                        self.bikeStations.append(newStation)
+                    }
                     
                 }
                 
@@ -411,6 +471,7 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                     let dateFormatter = DateFormatter()
                     dateFormatter.timeStyle = .short
                     
+                    let stationID = station["station_id"].intValue
                     let nbBikesAvailable = station["num_bikes_available"].intValue
                     let nbDisabledBikes = station["num_bikes_disabled"].intValue
                     let nbDocksAvailable = station["num_docks_available"].intValue
@@ -429,6 +490,21 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                     bikeStation.isReturning = isReturning
                     bikeStation.lastUpdated = lastUpdated
                     
+                    if self.favouriteBikeStations.contains(where: { $0.id == stationID }) {
+                        
+                        let index = self.favouriteBikeStations.index(where: { $0.id == stationID })
+                        let favStation = self.favouriteBikeStations[index as! Int]
+                        favStation.nbBikesAvailable = nbBikesAvailable
+                        favStation.nbDisabledBikes = nbDisabledBikes
+                        favStation.nbDocksAvailable = nbDocksAvailable
+                        favStation.nbDisabledDocks = nbDisabledDocks
+                        favStation.isInstalled = isInstalled
+                        favStation.isRenting = isRenting
+                        favStation.isReturning = isReturning
+                        favStation.lastUpdated = lastUpdated
+                        
+                    }
+                    
                     stationsIndex += 1
                     
                 }
@@ -443,12 +519,11 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     
     func makeStations() {
         
+        // sort closest distance on the top
         self.bikeStations.sort(by: { $0.distance < $1.distance })
         
         DispatchQueue.main.async {
-            
             self.tableView.reloadData()
-            
         }
         
     }
@@ -486,177 +561,82 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         
         if tableView.numberOfSections > 1 {
+            // favourites already exists with all bike stations
             
             if indexPath.section == 0 {
+                // actions in 'favourites' section
+                // action is to 'delete'
+                // ---> remove from favouriteBikeStation object, remove from favouriteBikeStationIDs array -> replace UserDefaults array with
+                // updated favouriteBikeStationIDs
                 
-                let delete = UITableViewRowAction(style: .destructive, title: "Delete", handler: { (action, index) in
+                let deleteAction = UITableViewRowAction(style: .destructive, title: "Delete") { (_, index) in
                     
                     self.favouriteBikeStations.remove(at: index.row)
-                    if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
-                        
-                        if var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
-                            
-                            decodedStations.remove(at: index.row)
-                            
-                            self.tableView.reloadData()
-                            
-                            let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
-                            self.defaults.set(encode, forKey: "favourites")
-                            self.defaults.synchronize()
-                            
-                        }
-                        
-                    }
+                    self.favouriteBikeStationIDs.remove(at: index.row)
+                    
+                    // access Data object from UserDefaults with key "favourites" and assign to variable 'decodedArr'
+                    guard let decodedArr = self.defaults.object(forKey: "favourites") as? Data else { return }
+                    // unarchive 'decodedArr' and typecast [Int] and assign to variable 'decodedStations'
+                    guard var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [Int] else { return }
+                    decodedStations = self.favouriteBikeStationIDs
+                    
+                    let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
+                    self.defaults.set(encode, forKey: "favourites")
+                    self.defaults.synchronize()
                     
                     self.tableView.reloadData()
                     
-                })
+                }
                 
-                delete.backgroundColor = UIColor.red
+                deleteAction.backgroundColor = .red
                 
-                return [delete]
-                
+                return [deleteAction]
                 
             } else {
+                // actions in 'all bike stations' section
+                // action is to favourite
                 
-                let favourite = UITableViewRowAction(style: .normal, title: "Favourite") { (action, index) in
+                let favouriteAction = UITableViewRowAction(style: .default, title: "Favourite") { (_, index) in
                     
-                    if self.favouriteBikeStations.contains(where: { $0.id == self.bikeStations[index.row].id }) {
-                        
-                        // already has it in here
-                        
-                        self.tableView.reloadData()
-                        
-                    } else {
-                        
-                        self.favouriteBikeStations.append(self.bikeStations[index.row])
-                        
-                        if self.defaults.object(forKey: "favourites") == nil {
-                            
-                            // no favs, encode arr and replace
-                            
-                            let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self.favouriteBikeStations)
-                            self.defaults.set(encodedData, forKey: "favourites")
-                            self.defaults.synchronize()
-                            
-                            self.tableView.reloadData()
-                            
-                        } else {
-                            
-                            // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
-                            
-                            if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
-                                
-                                if var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
-                                    
-                                    if !(decodedStations.contains(where: { $0.id == self.bikeStations[index.row].id })) {
-                                        
-                                        decodedStations.append(self.bikeStations[index.row])
-                                        
-                                    } else {
-                                        
-                                        let alert = UIAlertController(title: "Already In Favourites", message: "The Bike Station you are trying to add is already in your favourites.", preferredStyle: .alert)
-                                        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                                        self.present(alert, animated: true, completion: nil)
-                                        
-                                    }
-                                    
-                                    print(decodedStations)
-                                    print(self.favouriteBikeStations)
-                                    
-                                    self.tableView.reloadData()
-                                    
-                                    let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
-                                    self.defaults.set(encode, forKey: "favourites")
-                                    self.defaults.synchronize()
-                                    
-                                }
-                                
-                            }
-                            
-                        }
-                        
-                    }
+                    let stationID = self.bikeStations[index.row].id
+                    
+                    self.favouriteBikeStations.append(self.bikeStations[index.row])
+                    // remove from current bikeStation array to avoid repetition of stations
+                    self.bikeStations.remove(at: index.row)
+                    // func takes care of adding station to favourites
+                    self.addToFavourites(stationID)
+                    
+                    self.tableView.reloadData()
                     
                 }
                 
-                favourite.backgroundColor = UIColor.blue
+                favouriteAction.backgroundColor = .blue
                 
-                return [favourite]
+                return [favouriteAction]
                 
             }
             
         } else {
+            // actions in 'all bike stations' section
+            // action is to favourite
             
-            
-            let favourite = UITableViewRowAction(style: .normal, title: "Favourite") { (action, index) in
+            let favouriteAction = UITableViewRowAction(style: .default, title: "Favourite") { (_, index) in
                 
-                if self.favouriteBikeStations.contains(where: { $0.id == self.bikeStations[index.row].id }) {
-                    
-                    // already has it in here
-                    
-                    self.tableView.reloadData()
-                    
-                } else {
-                    
-                    self.favouriteBikeStations.append(self.bikeStations[index.row])
-                    
-                    if self.defaults.object(forKey: "favourites") == nil {
-                        
-                        // no favs, encode arr and replace
-                        
-                        let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self.favouriteBikeStations)
-                        self.defaults.set(encodedData, forKey: "favourites")
-                        self.defaults.synchronize()
-                        
-                        self.tableView.reloadData()
-                        
-                    } else {
-                        
-                        // favs are there, decode array, append to it, encode it, then archive and send to UserDefaults
-                        
-                        if let decodedArr = self.defaults.object(forKey: "favourites") as? Data {
-                            
-                            if var decodedStations = NSKeyedUnarchiver.unarchiveObject(with: decodedArr) as? [BikeStation] {
-                                
-                                if !(decodedStations.contains(where: { $0.id == self.bikeStations[index.row].id })) {
-                                    
-                                    decodedStations.append(self.bikeStations[index.row])
-                                    
-                                    let alert = UIAlertController(title: "Added To Favourites", message: "Successfully added in your favourites!", preferredStyle: .alert)
-                                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                                    self.present(alert, animated: true, completion: nil)
-                                    
-                                } else {
-                                    
-                                    let alert = UIAlertController(title: "Already In Favourites", message: "The Bike Station you are trying to add is already in your favourites.", preferredStyle: .alert)
-                                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                                    self.present(alert, animated: true, completion: nil)
-                                    
-                                }
-                                
-                                print(decodedStations)
-                                print(self.favouriteBikeStations)
-                                
-                                self.tableView.reloadData()
-                                
-                                let encode: Data = NSKeyedArchiver.archivedData(withRootObject: decodedStations)
-                                self.defaults.set(encode, forKey: "favourites")
-                                self.defaults.synchronize()
-                                
-                            }
-                            
-                        }
-                        
-                    }
-                    
-                }
+                let stationID = self.bikeStations[index.row].id
+                
+                self.favouriteBikeStations.append(self.bikeStations[index.row])
+                // remove from current bikeStation array to avoid repetition of stations
+                self.bikeStations.remove(at: index.row)
+                // func takes care of adding station to favourites
+                self.addToFavourites(stationID)
+                
+                self.tableView.reloadData()
                 
             }
             
-            favourite.backgroundColor = UIColor.blue
+            favouriteAction.backgroundColor = .blue
             
-            return [favourite]
+            return [favouriteAction]
             
         }
         
@@ -817,6 +797,14 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
         }
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension
+    }
+    
+    override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension
     }
 
     // MARK: - Navigation

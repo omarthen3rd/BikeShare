@@ -34,7 +34,6 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
     @IBOutlet var stationName: UILabel!
     @IBOutlet var availableBikes: UILabel!
     @IBOutlet var lastUpdated: UILabel!
-    @IBOutlet var maxCapacity: UILabel!
     @IBOutlet var isReturning: UILabel!
     @IBOutlet var isRenting: UILabel!
     @IBOutlet var availableDocks: UILabel!
@@ -102,11 +101,7 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
             }
             
             if let label2 = self.lastUpdated {
-                label2.text = "last updated on " + station.lastUpdated
-            }
-            
-            if let label3 = self.maxCapacity {
-                label3.text = "\(station.capacity)"
+                label2.text = "last updated at " + station.lastUpdated
             }
             
             if let label4 = self.availableBikes {
