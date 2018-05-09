@@ -26,8 +26,8 @@ class CalloutView: UIView {
             mainView.layer.cornerRadius = 15
             mainView.backgroundColor = UIColor.white
             mainView.layer.shadowColor = UIColor.black.cgColor
-            mainView.layer.shadowOffset = CGSize(width: 0, height: 5)
-            mainView.layer.shadowRadius = 5
+            mainView.layer.shadowOffset = CGSize(width: 0, height: 6)
+            mainView.layer.shadowRadius = 9
             mainView.layer.shadowOpacity = 0.2
             mainView.layer.shadowPath = UIBezierPath(roundedRect: mainView.bounds, cornerRadius: 15).cgPath
             
@@ -58,7 +58,7 @@ class CalloutView: UIView {
             
             stationName.text = station.address
             distanceAway.text = "\(distance) away"
-            lastUpdated.text = "updated \(station.lastUpdated)"
+            lastUpdated.text = "last updated \(station.lastUpdated)"
             stationBikesAvailable.text = "\(station.nbBikesAvailable)"
             stationAvailableDocks.text = "\(station.nbDocksAvailable)"
             isReturning.text = boolToString(station.isReturning)
@@ -69,8 +69,6 @@ class CalloutView: UIView {
     }
     
     func boolToString(_ bool: Bool) -> String {
-        
-        // if bool ? if true : else
         return bool ? "✓" : "𐄂"
     }
     

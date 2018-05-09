@@ -177,9 +177,14 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                     
                     let station = stationsArr[stationsIndex]
                     
-                    let lastDate = Date(timeIntervalSince1970: station["last_reported"].doubleValue)
+                    let epoch = (station["last_reported"].doubleValue) / 1000
+                    // divide by 1000 because ¯\_(ツ)_/¯
+                    
+                    let lastDate = Date(timeIntervalSince1970: epoch)
                     let dateFormatter = DateFormatter()
-                    dateFormatter.timeStyle = .short
+                    dateFormatter.timeZone = TimeZone.current
+                    dateFormatter.locale = Locale.current
+                    dateFormatter.dateFormat = "MMM dd, hh:mm a"
                     
                     let nbBikesAvailable = station["num_bikes_available"].intValue
                     let nbDisabledBikes = station["num_bikes_disabled"].intValue

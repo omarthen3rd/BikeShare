@@ -222,7 +222,7 @@ class StationCell: UITableViewCell {
             
             // End attributed label
             
-            stationCapacity.text = "\(distance) away · updated at \(station.lastUpdated)"
+            stationCapacity.text = "\(distance) away · updated \(station.lastUpdated)"
             
         }
         
@@ -466,10 +466,14 @@ class MainTableViewController: UITableViewController, UISearchBarDelegate {
                 for bikeStation in self.bikeStations {
                     
                     let station = stationsArr[stationsIndex]
+                    let epoch = (station["last_reported"].doubleValue) / 1000
+                    // divide by 1000 to make timestamp in milliseconds
                     
-                    let lastDate = Date(timeIntervalSince1970: station["last_reported"].doubleValue)
+                    let lastDate = Date(timeIntervalSince1970: epoch)
                     let dateFormatter = DateFormatter()
-                    dateFormatter.timeStyle = .short
+                    dateFormatter.timeZone = TimeZone.current
+                    dateFormatter.locale = Locale.current
+                    dateFormatter.dateFormat = "MMM dd, hh:mm a"
                     
                     let stationID = station["station_id"].intValue
                     let nbBikesAvailable = station["num_bikes_available"].intValue

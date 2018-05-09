@@ -101,7 +101,7 @@ class DetailTableViewController: UITableViewController, MKMapViewDelegate {
             }
             
             if let label2 = self.lastUpdated {
-                label2.text = "last updated at " + station.lastUpdated
+                label2.text = "last updated " + station.lastUpdated
             }
             
             if let label4 = self.availableBikes {
